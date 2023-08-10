@@ -1,0 +1,33 @@
+
+body {
+  max-width: 30em;
+  margin: auto;
+  padding: 30px;
+  font-size: 1em;
+  line-height: 1.55;
+  color: #031634;
+  background-color: #FFFEFC;
+}
+
+.navlink {
+  padding-right: 0.7em;  
+}
+
+h1, h2, h3 {
+  font-weight: normal;
+  text-rendering: optimizeLegibility; 
+}
+
+p.small {
+  font-size: 0.9em;
+}
+
+img {
+  max-width: 100%;
+  opacity: 90%;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  mix-blend-mode: multiply;
+}
+
+
