@@ -1,13 +1,14 @@
 
 body {
   max-width: 30em;
-  margin: auto;
+  margin: 16px;
   padding: 30px;
-  font-size: 1em;
+  font-size: 1.3em;
   font-family: 'Spectral', serif;
-  line-height: 1.55;
-  color: #031634;
+  line-height: 1.6em;
+  color: #404040;
   background-color: #FFFEFC;
+  font-kerning: auto;
 }
 
 .navlink {
@@ -26,7 +27,7 @@ p.small {
 
 figcaption {
   color: #8C8C8C;
-  font-size: 0.7em;
+  font-size: 1em;
   padding-top: 0.3em;
   padding-bottom: 0.5em;
 }
