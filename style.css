@@ -28,15 +28,11 @@ p.small {
 figcaption {
   color: #8C8C8C;
   font-size: 1em;
-  padding-top: 0.3em;
-  padding-bottom: 0.5em;
 }
 
 img {
   max-width: 100%;
   opacity: 90%;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
   mix-blend-mode: multiply;
 }
 
