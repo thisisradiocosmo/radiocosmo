@@ -2,8 +2,8 @@
 body {
   max-width: 30em;
   margin: auto;
-  padding: 30px;
-  font-size: 1.3em;
+  padding: 1.4em;
+  font-size: 1em;
   font-family: 'Spectral', serif;
   line-height: 1.6em;
   color: #404040;
@@ -12,7 +12,7 @@ body {
 }
 
 .navlink {
-  padding-right: 0.7em;  
+  padding-right: 0.5em;  
 }
 
 h1, h2, h3 {
@@ -27,7 +27,6 @@ p.small {
 
 figcaption {
   color: #8C8C8C;
-  font-size: 1em;
 }
 
 img {
@@ -36,4 +35,7 @@ img {
   mix-blend-mode: multiply;
 }
 
+figure {
+  margin: 0px;
+}
 
