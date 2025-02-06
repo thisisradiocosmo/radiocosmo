@@ -11,9 +11,9 @@
   --large: calc(var(--base-size) * var(--scale-ratio));
   --larger: calc(var(--base-size) * var(--scale-ratio) * var(--scale-ratio));
   --space-unit: 1rem;
-  --text-color: #333;
-  --bg-color: #fff;
-  --link-color: #000;
+  --text-color: #fff;
+  --bg-color: #333;
+  --link-color: #fff;
 }
 
 body {
