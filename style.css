@@ -50,6 +50,7 @@ h2 {
 
 p {
   margin-bottom: var(--space-unit);
+  font-weight: 400;
 }
 
 a {
