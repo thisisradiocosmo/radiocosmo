@@ -1,42 +1,106 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --scale-ratio: 1.2;
+  --base-size: 1rem;
+  --small: calc(var(--base-size) / var(--scale-ratio));
+  --large: calc(var(--base-size) * var(--scale-ratio));
+  --larger: calc(var(--base-size) * var(--scale-ratio) * var(--scale-ratio));
+  --space-unit: 1rem;
+  --text-color: #333;
+  --bg-color: #fff;
+  --link-color: #000;
+}
 
 body {
-  max-width: 30em;
-  margin: auto;
-  padding: 1.4em;
-  font-size: 1em;
-  font-family: 'Spectral', serif;
-  line-height: 1.6em;
-  color: #404040;
-  background-color: #FFFEFC;
-  font-kerning: auto;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  max-width: 35em; 
+  margin: 0 auto; 
+  padding: calc(var(--space-unit) * 2);
 }
 
-.navlink {
-  padding-right: 0.5em;  
+@media (max-width: 600px) {
+  body {
+    padding: var(--space-unit);
+    font-size: 16px;
+  }
 }
 
-h1, h2, h3 {
-  font-weight: normal;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  text-rendering: optimizeLegibility; 
+h1 {
+  font-size: var(--larger);
+  line-height: 1.2;
+  margin-bottom: var(--space-unit);
+  font-weight: 700;
 }
 
-p.small {
-  font-size: 0.9em;
+h2 {
+  font-size: var(--large);
+  line-height: 1.3;
+  margin-top: calc(var(--space-unit) * 2);
+  margin-bottom: var(--space-unit);
+  font-weight: 700;
 }
 
-figcaption {
-  color: #8C8C8C;
-  font-size: 0.7em;
+p {
+  margin-bottom: var(--space-unit);
 }
 
-img {
-  max-width: 100%;
-  opacity: 90%;
-  mix-blend-mode: multiply;
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
 }
 
-figure {
-  margin: 0px;
+a:hover {
+  border-bottom: 2px solid currentColor;
+}
+
+ul, ol {
+  margin-bottom: var(--space-unit);
+  padding-left: calc(var(--space-unit) * 1.5);
+}
+
+li {
+  margin-bottom: calc(var(--space-unit) * 0.5);
+}
+
+pre, code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: var(--small);
+  background-color: #f5f5f5;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+pre {
+  padding: var(--space-unit);
+  overflow-x: auto;
+  margin-bottom: var(--space-unit);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: calc(var(--space-unit) * 2) 0;
+}
+
+@media print {
+  body {
+    max-width: none;
+    padding: 2cm;
+    color: black;
+  }
+  
+  a {
+    color: black;
+    border-bottom: none;
+  }
 }
 
