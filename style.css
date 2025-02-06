@@ -62,9 +62,5 @@ a {
   color: var(--link-color);
   border-bottom: 1px solid currentColor;
 }
-
-a:hover {
-  border-bottom: 2px solid currentColor;
-}
 }
 
