@@ -40,6 +40,11 @@ h1 {
   font-weight: 700;
 }
 
+hr {
+  margin-bottom: var(--space-unit);
+  margin-top: var(--space-unit);
+}
+
 h2 {
   font-size: var(--large);
   line-height: 1.3;
@@ -61,14 +66,5 @@ a {
 a:hover {
   border-bottom: 2px solid currentColor;
 }
-
-li {
-  margin-bottom: calc(var(--space-unit) * 0.5);
-}
-  
-  a {
-    color: var(--link-color);
-    border-bottom: none;
-  }
 }
 
