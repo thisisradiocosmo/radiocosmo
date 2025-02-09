@@ -15,6 +15,7 @@
   --bg-color: #030211;
   --link-color: #B28EC8;
 --button-color: #B28EC8;
+--accent-color: #F8D800;
 }
 
 body {
@@ -36,7 +37,7 @@ body {
 
 h1 {
   font-size: var(--larger);
-margin-bottom: calc(var(--space-unit)/3);
+margin-bottom: calc(var(--space-unit)/2);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -50,7 +51,7 @@ h2 {
   font-size: var(--large);
   line-height: 1.3;
   margin-top: var(--space-unit);
-  margin-bottom: calc(var(--space-unit)/3);
+  margin-bottom: calc(var(--space-unit)/2);
   font-weight: 700;
 }
 
