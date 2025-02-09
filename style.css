@@ -12,8 +12,9 @@
   --larger: calc(var(--base-size) * var(--scale-ratio) * var(--scale-ratio));
   --space-unit: 1rem;
   --text-color: #fff;
-  --bg-color: #000;
-  --link-color: #fff;
+  --bg-color: #030211;
+  --link-color: #B28EC8;
+--button-color: #B28EC8;
 }
 
 body {
@@ -35,8 +36,8 @@ body {
 
 h1 {
   font-size: var(--larger);
+margin-bottom: calc(var(--space-unit)/3);
   line-height: 1.2;
-  margin-bottom: var(--space-unit);
   font-weight: 700;
 }
 
@@ -49,7 +50,7 @@ h2 {
   font-size: var(--large);
   line-height: 1.3;
   margin-top: var(--space-unit);
-  margin-bottom: var(--space-unit);
+  margin-bottom: calc(var(--space-unit)/3);
   font-weight: 700;
 }
 
@@ -62,5 +63,13 @@ a {
   color: var(--link-color);
   border-bottom: 1px solid currentColor;
 }
+
+button {
+  background-color: var(--button-color);
+  border: 0px solid currentColor;
+padding: 10px;
+}
+
+
 }
 
