@@ -13,6 +13,7 @@
   --space-unit: 1rem;
   --text-color: #fff;
   --bg-color: #030211;
+--bg-alt-color: #E9DAF0;
   --link-color: #B28EC8;
 --button-color: #B28EC8;
 --accent-color: #F8D800;
@@ -69,6 +70,10 @@ button {
   background-color: var(--button-color);
   border: 0px solid currentColor;
 padding: 10px;
+}
+
+form {
+  margin-bottom: var(--space-unit);
 }
 
 
