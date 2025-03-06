@@ -11,42 +11,58 @@
 </head>
 
 <body>
-<div class="radio">
-        <div>
+
+<header>
 <h1>RADIOCOSMO</h1>
 <p><i>A new generation of music has been born... a quarter-million miles from earth.</i></p>
-</div>
-        <div class="display" id="song-display">Loading...</div>
-        <div class="indicator"></div>
-        <audio id="player" autoplay style="display: none;"></audio>
+<br>
+</header>
+
+
+<button class="player-button" id="play-pause"><div class="indicator" id="indicator"></div>Listen Live
+</button>
+
+<audio id="player" style="display: none;"></audio>
 
 <script>
         // Your song playlist - add your MP3 files here
         const songs = [
-{ title: "Launch", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/launch.mp3" },
-            { title: "Russian Moon", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/russianmoon.mp3" },
-            { title: "Tycho-2", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/tycho-2.mp3" },
-            { title: "Clavius", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/clavius.mp3" },
-{ title: "Station-V", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/station-v.mp3" },
-{ title: "Monitor-77", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/monitor-77.mp3" }
+            "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/launch.mp3",
+            "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/russianmoon.mp3",
+            "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/tycho-2.mp3",
+"https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/clavius.mp3",
+"https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/station-v.mp3",
+"https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/monitor-77.mp3"
         ];
         
         const player = document.getElementById('player');
-        const display = document.getElementById('song-display');
+        const playPauseButton = document.getElementById('play-pause');
+        const indicator = document.getElementById('indicator');
         let currentSong = 0;
+        let isPlaying = false;
         
-        // Play the first song
-        function playSong() {
-            player.src = songs[currentSong].url;
-            display.textContent = "Now Playing: " + songs[currentSong].title;
-            player.play().catch(e => {
-                // Handle autoplay restrictions
-                display.textContent = "Start radio";
-                document.querySelector('.radio').onclick = () => {
+        // Toggle play/pause
+        playPauseButton.onclick = function() {
+            if (isPlaying) {
+                player.pause();
+                playPauseButton.childNodes[1].nodeValue = "Listen Live";
+                isPlaying = false;
+            } else {
+                if (player.src) {
                     player.play();
-                    display.textContent = "Now Playing: " + songs[currentSong].title;
-                };
-            });
+                } else {
+                    playSong();
+                }
+                playPauseButton.childNodes[1].nodeValue = "Pause";
+                indicator.style.animationPlayState = "running";
+                isPlaying = true;
+            }
+        };
+        
+        // Play the current song
+        function playSong() {
+            player.src = songs[currentSong];
+            player.play();
         }
         
         // When a song ends, play the next one
@@ -54,12 +70,10 @@
             currentSong = (currentSong + 1) % songs.length;
             playSong();
         };
-        
-        // Start playing
-        playSong();
     </script>
-
-<a href="subscribe.html">subscribe</a> I <a href="subscribe.html">cassettes</a>
+<br>
+<div>
+<a href="subscribe.html">subscribe</a> I <a href="cassettes.html">cassettes</a>
 </div>
 </body>
 </html>
