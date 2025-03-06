@@ -11,54 +11,55 @@
 </head>
 
 <body>
-<header>
-  <h1>RADIOCOSMO</h1>
+<div class="radio">
+        <div>
+<h1>RADIOCOSMO</h1>
 <p><i>A new generation of music has been born... a quarter-million miles from earth.</i></p>
-<br>
-</header>
+</div>
+        <div class="display" id="song-display">Loading...</div>
+        <div class="indicator"></div>
+        <audio id="player" autoplay style="display: none;"></audio>
 
-<h2 style="text-align: center;">Journey Beyond the Stars: An epic drama of adventure and exploration</h2>
+<script>
+        // Your song playlist - add your MP3 files here
+        const songs = [
+{ title: "Launch", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/launch.mp3" },
+            { title: "Russian Moon", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/russianmoon.mp3" },
+            { title: "Tycho-2", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/tycho-2.mp3" },
+            { title: "Clavius", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/clavius.mp3" },
+{ title: "Station-V", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/station-v.mp3" },
+{ title: "Monitor-77", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/monitor-77.mp3" }
+        ];
+        
+        const player = document.getElementById('player');
+        const display = document.getElementById('song-display');
+        let currentSong = 0;
+        
+        // Play the first song
+        function playSong() {
+            player.src = songs[currentSong].url;
+            display.textContent = "Now Playing: " + songs[currentSong].title;
+            player.play().catch(e => {
+                // Handle autoplay restrictions
+                display.textContent = "Start radio";
+                document.querySelector('.radio').onclick = () => {
+                    player.play();
+                    display.textContent = "Now Playing: " + songs[currentSong].title;
+                };
+            });
+        }
+        
+        // When a song ends, play the next one
+        player.onended = function() {
+            currentSong = (currentSong + 1) % songs.length;
+            playSong();
+        };
+        
+        // Start playing
+        playSong();
+    </script>
 
-<section>
-<h2>Free streaming</h2>
-<p>Listen to the transmission through our online player.</p>
-
-<form action="https://formsubmit.co/590ae16ae9b72c50fe8cfaad98af356c" method="POST">
-    <input type="hidden" name="_next" value="https://stream.radiocosmo.net/vex9lunrhalx75obliskdave42tyc0blu3">
-
-<input type="name" id="voornaam" name="first_name" required placeholder="First Name (to address you correctly)">
-
-    <input type="text" id="email" name="email" required 
-           placeholder="E-mail" 
-           >
-
-<button type="submit" class="button">Listen Now</button>
-</form>
-<p>
-<i>After clicking Listen Now, you will be redirected to the player. This may take a moment. You will receive an occassional e-mail when we transmit new music to earth. No spam.</i>
-</p>
-</section>
-
-
-
-
-
-
-<section>
-<img src="journeybeyondthestars.png" alt="Journey Beyond the Stars" width="100%" height="auto"> 
-    <h2>Cassette + Exclusive Streaming</h2>
-
-<p>Each cassette includes a <b>private streaming link</b> giving you lifetime access to the experience.</p>
-
-<p style="color: var(--accent-color)">Limited to 10 copies (6/10 sold)</p>
-
-<p>
-Will you be one of the few to receive our signal?
-</p>
-
-
-<button onclick="window.location.href='order.html'" class="button">Order Now for €15</button>
-</section>
-
+<a href="subscribe.html">subscribe</a> I <a href="subscribe.html">cassettes</a>
+</div>
 </body>
 </html>

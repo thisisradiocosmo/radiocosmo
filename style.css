@@ -91,11 +91,6 @@ cursor: pointer;
 margin-bottom: var(--space-larger);
 }
 
-
-
-
-
-
 @media (max-width: 600px) {
   body {
     padding: var(--space-unit);
@@ -120,10 +115,41 @@ hr {
 
 a {
   color: var(--link-color);
-  border-bottom: 1px solid currentColor;
 }
 
+.radio {
+            width: 100%;
+            background-color: var(--bg-alt-color);
+            border-radius: calc(var(--space-small)/2);
+            padding: var(--space-unit);
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
+.display {
+            background-color: var(--button-color);
+            color: var(--bg-color);
+            padding: var(--space-unit);
+            margin: var(--space-unit);
+            border-radius: calc(var(--space-small)/2);
+            font-family: monospace;
+            overflow: hidden;
+            white-space: nowrap;
+cursor: pointer;
+        }
+
+.indicator {
+            width: var(--space-small);
+            height: var(--space-small);
+            background-color: red;
+            border-radius: 50%;
+            margin: var(--space-unit) auto;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
 
 }
 
