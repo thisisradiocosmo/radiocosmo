@@ -122,6 +122,12 @@ margin-right: auto;
 width: 100%;
 }
 
+img {
+max-width: 100%;
+height: auto;
+display: block;
+}
+
 @media (max-width: 600px) {
   body {
     padding: var(--space-unit);
