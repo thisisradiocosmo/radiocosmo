@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Radiocosmo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Spectral&display=swap');
+</style>
+<link rel="stylesheet" href="homepage.css">
+</head>
+<body>
+<canvas id="stars"></canvas>
+    <div class="waveform" id="wave"></div>
+    <div class="info">
+        <div id="title">—</div>
+    </div>
+    <div class="controls">
+        <button onclick="prev()">‹</button>
+        <button class="play-pause" onclick="play()" id="btn">▸</button>
+        <button onclick="next()">›</button>
+    </div>
+    <div class="playlist" id="list"></div>
+    <div class="links">
+        <a href="https://www.instagram.com/weareradiocosmo/" target="_blank">Instagram</a>
+        <a href="https://open.spotify.com/artist/3HvDYPOZuI4QsWFCE6exMf?si=daRivyUrQfq6pdenq-IC2w" target="_blank">Spotify</a>
+    </div>
+
+    <script>
+        const songs = [
+{ title: "Nothing I Can Do", url: "https://www.wimhouben.com/pub/radiocosmo/song03-master.mp3" },
+{ title: "Waves", url: "https://www.wimhouben.com/pub/radiocosmo/Song01-master.mp3" },
+            { title: "Clavius", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/clavius.mp3" },
+{ title: "Station V", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/station-v.mp3" },
+{ title: "Tycho-2", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/tycho-2.mp3" },
+            { title: "Russian Moon", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/russianmoon.mp3" },
+{ title: "Monitor 77", url: "https://www.wimhouben.com/pub/radiocosmo/journeybeyondthestars/monitor-77.mp3" }
+        ];
+        
+        let i = 0, playing = false;
+        const a = new Audio();
+        
+        // Waveform
+        for (let x = 0; x < 40; x++) {
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            wave.appendChild(bar);
+        }
+        const bars = document.querySelectorAll('.bar');
+        setInterval(() => bars.forEach(b => b.style.height = (playing ? Math.random() * 40 + 10 : 3) + 'px'), 250);
+        
+        // Playlist
+        songs.forEach((s, x) => {
+            const el = document.createElement('div');
+            el.className = 'song';
+            el.innerHTML = `<b>${s.title}</b>`;
+            el.onclick = () => load(x);
+            list.appendChild(el);
+        });
+        
+        function load(x) {
+            i = x;
+            a.src = songs[i].url;
+            title.textContent = songs[i].title;
+            document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
+            if (playing) a.play();
+        }
+        
+        function play() {
+            if (!a.src) load(0);
+            playing ? a.pause() : a.play();
+            playing = !playing;
+            btn.textContent = playing ? '❚❚' : '▸';
+        }
+        
+        function prev() { load((i - 1 + songs.length) % songs.length); if (playing) a.play(); }
+        function next() { load((i + 1) % songs.length); if (playing) a.play(); }
+ 
+        load(0);
+
+a.onended = () => {
+    next();
+    a.play().catch(() => {});
+};
+
+
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let w, h;
+let stars = [];
+
+function resize() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+  stars = Array.from({ length: 60 }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    r: Math.random() * 1.2 + 0.2,
+    alpha: Math.random(),
+    dAlpha: (Math.random() * 0.02 + 0.005) * (Math.random() < 0.5 ? 1 : -1)
+  }));
+}
+
+function draw() {
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = 'white';
+  for (let s of stars) {
+    s.alpha += s.dAlpha;
+    if (s.alpha <= 0 || s.alpha >= 1) s.dAlpha *= -1;
+    ctx.globalAlpha = s.alpha;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', resize);
+resize();
+draw();
+    </script>
+</body>
+</html>

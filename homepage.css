@@ -1,0 +1,70 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+              font-family: Gill Sans,Gill Sans MT,Calibri,sans-serif;
+font-weight: 300;
+            background: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            padding: 40px 20px;
+        }
+        .waveform { display: flex; gap: 5px; height: 80px; align-items: center; }
+        .bar { width: 1px; background: #fff; height: 3px; transition: 0.1s; }
+        .info { text-align: center; font-size: 1.2em;}
+        .controls { display: flex; gap: 20px; }
+        button {
+            background: none;
+            border: 1px solid #666;
+            color: #fff;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: 0.2s;
+        }
+        button:hover { border-color: #fff; }
+        .play-pause { width: 60px; height: 60px; font-size: 1.3em; }
+        .playlist { display: flex; flex-direction: column; max-height: 300px; overflow-y: auto; padding-right: 10px; }
+        .playlist::-webkit-scrollbar { width: 3px; }
+        .playlist::-webkit-scrollbar-track { background: #111; }
+        .playlist::-webkit-scrollbar-thumb { background: #333; }
+        .playlist::-webkit-scrollbar-thumb:hover { background: #444; }
+        .song {
+            padding: 12px 25px;
+            border: 1px solid #222;
+            cursor: pointer;
+            transition: 0.2s;
+            min-width: 350px;
+        }
+        .song:hover { border-color: #444; }
+        .song.active { background: #111; border-color: #444; }
+        .links {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .links a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: 0.2s;
+            border-bottom: 1px solid transparent;
+        }
+        .links a:hover {
+            color: #fff;
+            border-bottom-color: #666;
+        }
+
+#stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: black;
+}
