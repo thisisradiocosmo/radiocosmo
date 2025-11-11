@@ -9,7 +9,6 @@
 </style>
 <link rel="stylesheet" href="homepage.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/wavesurfer.js@7.8.2/dist/wavesurfer.min.js"></script>
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -18,8 +17,8 @@
     <a href="https://forms.gle/92pu8sH3cgkqg9su6" target="_blank">Subscribe</a>
 </div>
 
-<div class="waveform-container">
-    <div id="waveform"></div>
+<div class="visualizer-container">
+    <canvas id="visualizer"></canvas>
     <div class="track-info">
         <span id="current-time">0:00</span>
         <span id="duration">0:00</span>
@@ -117,86 +116,140 @@ const songs = [
 ];
 
 let i = 0, playing = false;
-let wavesurfer;
+const audio = new Audio();
+audio.crossOrigin = "anonymous";
 
-// Initialize WaveSurfer after page loads
-document.addEventListener('DOMContentLoaded', () => {
-    wavesurfer = WaveSurfer.create({
-        container: '#waveform',
-        waveColor: '#4a90e2',
-        progressColor: '#ffffff',
-        cursorColor: '#ffffff',
-        barWidth: 2,
-        barRadius: 3,
-        cursorWidth: 1,
-        height: 80,
-        barGap: 2,
-        responsive: true
-    });
+// Web Audio API setup
+let audioContext, analyser, source, dataArray, bufferLength;
 
-    // Update time display
-    wavesurfer.on('audioprocess', () => {
-        document.getElementById('current-time').textContent = formatTime(wavesurfer.getCurrentTime());
-    });
+function setupAudioContext() {
+    if (audioContext) return;
+    
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 128;
+    
+    source = audioContext.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+    
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+}
 
-    wavesurfer.on('ready', () => {
-        document.getElementById('duration').textContent = formatTime(wavesurfer.getDuration());
-    });
+// Visualizer canvas
+const canvas = document.getElementById('visualizer');
+const canvasCtx = canvas.getContext('2d');
 
-    wavesurfer.on('finish', () => {
-        i = (i + 1) % songs.length;
-        load(i);
-        wavesurfer.play();
-    });
+function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-    wavesurfer.on('play', () => {
-        playing = true;
-        btn.innerHTML = '<i class="fas fa-pause"></i>';
-    });
+function drawVisualizer() {
+    requestAnimationFrame(drawVisualizer);
+    
+    if (!analyser) {
+        canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+        return;
+    }
+    
+    analyser.getByteFrequencyData(dataArray);
+    
+    canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const barCount = 40;
+    const barWidth = (canvas.width / barCount) * 0.8;
+    const gap = (canvas.width / barCount) * 0.2;
+    
+    for (let j = 0; j < barCount; j++) {
+        const dataIndex = Math.floor((j / barCount) * bufferLength);
+        const barHeight = (dataArray[dataIndex] / 255) * canvas.height * 0.8;
+        
+        const x = j * (barWidth + gap);
+        const y = canvas.height - barHeight;
+        
+        const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, y);
+        gradient.addColorStop(0, '#4a90e2');
+        gradient.addColorStop(1, '#ffffff');
+        
+        canvasCtx.fillStyle = gradient;
+        canvasCtx.fillRect(x, y, barWidth, barHeight);
+    }
+}
 
-    wavesurfer.on('pause', () => {
-        playing = false;
-        btn.innerHTML = '<i class="fas fa-play"></i>';
-    });
+drawVisualizer();
 
-    // Build playlist
-    songs.forEach((s, x) => {
-        const el = document.createElement('div');
-        el.className = 'song';
-        el.innerHTML = `<span class="song-title">${s.title}</span><span class="song-date">${s.date}</span>`;
-        el.onclick = () => load(x);
-        list.appendChild(el);
-    });
-
-    // Load first song
-    load(0);
-});
-
+// Format time
 function formatTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+// Update time display
+audio.addEventListener('timeupdate', () => {
+    document.getElementById('current-time').textContent = formatTime(audio.currentTime);
+});
+
+audio.addEventListener('loadedmetadata', () => {
+    document.getElementById('duration').textContent = formatTime(audio.duration);
+});
+
+// Playlist
+songs.forEach((s, x) => {
+    const el = document.createElement('div');
+    el.className = 'song';
+    el.innerHTML = `<span class="song-title">${s.title}</span><span class="song-date">${s.date}</span>`;
+    el.onclick = () => load(x);
+    list.appendChild(el);
+});
+
 function load(x) {
     i = x;
-    wavesurfer.load(songs[i].url);
+    audio.src = songs[i].url;
     title.textContent = songs[i].title;
     document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
+    if (playing) audio.play();
 }
 
 function play() {
-    wavesurfer.playPause();
+    if (!audio.src) load(0);
+    
+    if (!audioContext) {
+        setupAudioContext();
+    }
+    
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    
+    playing ? audio.pause() : audio.play();
+    playing = !playing;
+    btn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
 
+audio.onended = () => {
+    i = (i + 1) % songs.length;
+    load(i);
+    audio.play().catch(() => {});
+};
+
+load(0);
+
 // Stars
-const canvas = document.getElementById('stars');
-const ctx = canvas.getContext('2d');
+const starsCanvas = document.getElementById('stars');
+const ctx = starsCanvas.getContext('2d');
 let w, h, stars = [];
 
 function resize() {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
+    w = starsCanvas.width = window.innerWidth;
+    h = starsCanvas.height = window.innerHeight;
     stars = Array.from({ length: 60 }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
