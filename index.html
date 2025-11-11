@@ -117,7 +117,6 @@ const songs = [
 ];
 
 let i = 0, playing = false;
-const a = new Audio();
 let wavesurfer;
 
 // Initialize WaveSurfer
@@ -149,6 +148,16 @@ wavesurfer.on('finish', () => {
     wavesurfer.play();
 });
 
+wavesurfer.on('play', () => {
+    playing = true;
+    btn.innerHTML = '<i class="fas fa-pause"></i>';
+});
+
+wavesurfer.on('pause', () => {
+    playing = false;
+    btn.innerHTML = '<i class="fas fa-play"></i>';
+});
+
 function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -175,8 +184,16 @@ function load(x) {
 }
 
 function play() {
-    if (!wavesurfer.isReady) load(0);
-    playing ? wavesurfer.pause() : wavesurfer.play();
+    if (!wavesurfer.getDuration()) {
+        // If no audio loaded yet, load first song
+        load(0);
+        setTimeout(() => wavesurfer.play(), 100);
+        playing = true;
+        btn.innerHTML = '<i class="fas fa-pause"></i>';
+        return;
+    }
+    
+    wavesurfer.playPause();
     playing = !playing;
     btn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }

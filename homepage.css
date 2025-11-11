@@ -150,8 +150,9 @@ body {
     display: flex;
     justify-content: space-between;
     color: white;
-    font-size: 12px;
+    font-size: 14px;
     font-family: 'Spectral', serif;
+    padding: 0 5px;
 }
 
 @media (max-width: 768px) {
