@@ -8,6 +8,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Spectral&display=swap');
 </style>
 <link rel="stylesheet" href="homepage.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -18,8 +19,10 @@
 
 <div class="main">
     <div class="player">
-        <div class="now-playing" id="title">Select a track</div>
-        <button class="play-btn" onclick="play()" id="btn">▸</button>
+<div class="now-playing" id="title">Select a track</div>
+<button class="play-btn" onclick="play()" id="btn">
+<i class="fas fa-play"></i>
+</button>
     </div>
     
     <div class="playlist" id="list"></div>
@@ -128,7 +131,7 @@ function play() {
     if (!a.src) load(0);
     playing ? a.pause() : a.play();
     playing = !playing;
-    btn.textContent = playing ? '❚❚' : '▸';
+    btn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
 
 a.onended = () => {
