@@ -9,7 +9,7 @@
 </style>
 <link rel="stylesheet" href="homepage.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://unpkg.com/wavesurfer.js@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/wavesurfer.js@7.8.2/dist/wavesurfer.min.js"></script>
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -119,43 +119,57 @@ const songs = [
 let i = 0, playing = false;
 let wavesurfer;
 
-// Initialize WaveSurfer
-wavesurfer = WaveSurfer.create({
-    container: '#waveform',
-    waveColor: '#4a90e2',
-    progressColor: '#ffffff',
-    cursorColor: '#ffffff',
-    barWidth: 2,
-    barRadius: 3,
-    cursorWidth: 1,
-    height: 80,
-    barGap: 2,
-    responsive: true
-});
+// Initialize WaveSurfer after page loads
+document.addEventListener('DOMContentLoaded', () => {
+    wavesurfer = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: '#4a90e2',
+        progressColor: '#ffffff',
+        cursorColor: '#ffffff',
+        barWidth: 2,
+        barRadius: 3,
+        cursorWidth: 1,
+        height: 80,
+        barGap: 2,
+        responsive: true
+    });
 
-// Update time display
-wavesurfer.on('audioprocess', () => {
-    document.getElementById('current-time').textContent = formatTime(wavesurfer.getCurrentTime());
-});
+    // Update time display
+    wavesurfer.on('audioprocess', () => {
+        document.getElementById('current-time').textContent = formatTime(wavesurfer.getCurrentTime());
+    });
 
-wavesurfer.on('ready', () => {
-    document.getElementById('duration').textContent = formatTime(wavesurfer.getDuration());
-});
+    wavesurfer.on('ready', () => {
+        document.getElementById('duration').textContent = formatTime(wavesurfer.getDuration());
+    });
 
-wavesurfer.on('finish', () => {
-    i = (i + 1) % songs.length;
-    load(i);
-    wavesurfer.play();
-});
+    wavesurfer.on('finish', () => {
+        i = (i + 1) % songs.length;
+        load(i);
+        wavesurfer.play();
+    });
 
-wavesurfer.on('play', () => {
-    playing = true;
-    btn.innerHTML = '<i class="fas fa-pause"></i>';
-});
+    wavesurfer.on('play', () => {
+        playing = true;
+        btn.innerHTML = '<i class="fas fa-pause"></i>';
+    });
 
-wavesurfer.on('pause', () => {
-    playing = false;
-    btn.innerHTML = '<i class="fas fa-play"></i>';
+    wavesurfer.on('pause', () => {
+        playing = false;
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+    });
+
+    // Build playlist
+    songs.forEach((s, x) => {
+        const el = document.createElement('div');
+        el.className = 'song';
+        el.innerHTML = `<span class="song-title">${s.title}</span><span class="song-date">${s.date}</span>`;
+        el.onclick = () => load(x);
+        list.appendChild(el);
+    });
+
+    // Load first song
+    load(0);
 });
 
 function formatTime(seconds) {
@@ -164,41 +178,16 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Playlist
-songs.forEach((s, x) => {
-    const el = document.createElement('div');
-    el.className = 'song';
-    el.innerHTML = `<span class="song-title">${s.title}</span><span class="song-date">${s.date}</span>`;
-    el.onclick = () => load(x);
-    list.appendChild(el);
-});
-
 function load(x) {
     i = x;
     wavesurfer.load(songs[i].url);
     title.textContent = songs[i].title;
     document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
-    if (playing) {
-        wavesurfer.play();
-    }
 }
 
 function play() {
-    if (!wavesurfer.getDuration()) {
-        // If no audio loaded yet, load first song
-        load(0);
-        setTimeout(() => wavesurfer.play(), 100);
-        playing = true;
-        btn.innerHTML = '<i class="fas fa-pause"></i>';
-        return;
-    }
-    
     wavesurfer.playPause();
-    playing = !playing;
-    btn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
-
-load(0);
 
 // Stars
 const canvas = document.getElementById('stars');
