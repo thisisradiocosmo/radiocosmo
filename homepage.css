@@ -134,6 +134,26 @@ body {
     letter-spacing: 0.5px;
 }
 
+.waveform-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+#waveform {
+    margin-bottom: 10px;
+}
+
+.track-info {
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    font-size: 12px;
+    font-family: 'Spectral', serif;
+}
+
 @media (max-width: 768px) {
     .player {
         padding: 20px;

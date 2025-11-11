@@ -9,12 +9,21 @@
 </style>
 <link rel="stylesheet" href="homepage.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/wavesurfer.js@7"></script>
 </head>
 <body>
 <canvas id="stars"></canvas>
 
 <div class="banner">
     <a href="https://forms.gle/92pu8sH3cgkqg9su6" target="_blank">Subscribe</a>
+</div>
+
+<div class="waveform-container">
+    <div id="waveform"></div>
+    <div class="track-info">
+        <span id="current-time">0:00</span>
+        <span id="duration">0:00</span>
+    </div>
 </div>
 
 <div class="main">
@@ -109,6 +118,42 @@ const songs = [
 
 let i = 0, playing = false;
 const a = new Audio();
+let wavesurfer;
+
+// Initialize WaveSurfer
+wavesurfer = WaveSurfer.create({
+    container: '#waveform',
+    waveColor: '#4a90e2',
+    progressColor: '#ffffff',
+    cursorColor: '#ffffff',
+    barWidth: 2,
+    barRadius: 3,
+    cursorWidth: 1,
+    height: 80,
+    barGap: 2,
+    responsive: true
+});
+
+// Update time display
+wavesurfer.on('audioprocess', () => {
+    document.getElementById('current-time').textContent = formatTime(wavesurfer.getCurrentTime());
+});
+
+wavesurfer.on('ready', () => {
+    document.getElementById('duration').textContent = formatTime(wavesurfer.getDuration());
+});
+
+wavesurfer.on('finish', () => {
+    i = (i + 1) % songs.length;
+    load(i);
+    wavesurfer.play();
+});
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
 
 // Playlist
 songs.forEach((s, x) => {
@@ -121,24 +166,20 @@ songs.forEach((s, x) => {
 
 function load(x) {
     i = x;
-    a.src = songs[i].url;
+    wavesurfer.load(songs[i].url);
     title.textContent = songs[i].title;
     document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
-    if (playing) a.play();
+    if (playing) {
+        wavesurfer.play();
+    }
 }
 
 function play() {
-    if (!a.src) load(0);
-    playing ? a.pause() : a.play();
+    if (!wavesurfer.isReady) load(0);
+    playing ? wavesurfer.pause() : wavesurfer.play();
     playing = !playing;
     btn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
-
-a.onended = () => {
-    i = (i + 1) % songs.length;
-    load(i);
-    a.play().catch(() => {});
-};
 
 load(0);
 
