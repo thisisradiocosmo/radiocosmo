@@ -63,7 +63,7 @@ body {
     max-width: 1440px;
     width: 100%;
     margin: 0 auto;
-    padding: 20px 30px 10px;
+    padding: 20px 30px;
     display: flex;
     gap: 15px;
     align-items: center;
@@ -94,10 +94,35 @@ body {
     transform: scale(1.05);
 }
 
+.track-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
 .now-playing {
     font-size: 1.3em;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.artist-info {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.5px;
+}
+
+.artist-name {
     font-weight: 400;
-    letter-spacing: 1px;
+}
+
+.separator {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.release-date {
+    color: rgba(255, 255, 255, 0.6);
 }
 
 /* Waveform container */
@@ -188,12 +213,16 @@ body {
     }
     
     .player {
-        padding: 15px 20px 10px;
+        padding: 15px 20px;
         gap: 12px;
     }
     
     .now-playing {
-        font-size: 1em;
+        font-size: 1.1em;
+    }
+    
+    .artist-info {
+        font-size: 0.85em;
     }
     
     .play-btn {

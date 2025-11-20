@@ -28,11 +28,18 @@
 
 <div class="main">
     <div class="player">
-<div class="now-playing" id="title">Select a track</div>
-<button class="play-btn" onclick="play()" id="btn">
-<i class="fas fa-play"></i>
-</button>
+    <button class="play-btn" onclick="play()" id="btn">
+        <i class="fas fa-play"></i>
+    </button>
+    <div class="track-details">
+        <div class="now-playing" id="title">Select a track</div>
+        <div class="artist-info">
+            <span class="artist-name">Radiocosmo</span>
+            <span class="separator"> - </span>
+            <span class="release-date" id="date"></span>
+        </div>
     </div>
+</div>
     
     <div class="playlist" id="list"></div>
 </div>
@@ -102,11 +109,12 @@ songs.forEach((s, x) => {
 
 function load(x) {
     i = x;
+    const wasPlaying = playing;
     wavesurfer.load(songs[i].url);
     title.textContent = songs[i].title;
+    document.getElementById('date').textContent = songs[i].date; // Add this line
     document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
     
-    // If we should be playing, wait for the audio to be ready then play
     if (playing) {
         wavesurfer.once('ready', () => {
             wavesurfer.play();
