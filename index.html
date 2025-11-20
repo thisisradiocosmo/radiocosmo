@@ -72,7 +72,6 @@ wavesurfer.on('ready', () => {
 wavesurfer.on('finish', () => {
     i = (i + 1) % songs.length;
     load(i);
-    wavesurfer.play();
 });
 
 wavesurfer.on('play', () => {
@@ -106,7 +105,9 @@ function load(x) {
     title.textContent = songs[i].title;
     document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
     if (playing) {
-        wavesurfer.play();
+        wavesurfer.once('ready', () => {
+            wavesurfer.play();
+        });
     }
 }
 
