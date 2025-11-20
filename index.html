@@ -70,6 +70,7 @@ wavesurfer.on('ready', () => {
 });
 
 wavesurfer.on('finish', () => {
+    playing = true; 
     i = (i + 1) % songs.length;
     load(i);
 });
@@ -104,6 +105,8 @@ function load(x) {
     wavesurfer.load(songs[i].url);
     title.textContent = songs[i].title;
     document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
+    
+    // If we should be playing, wait for the audio to be ready then play
     if (playing) {
         wavesurfer.once('ready', () => {
             wavesurfer.play();
@@ -115,15 +118,11 @@ function play() {
     if (!wavesurfer.getDuration()) {
         // If no audio loaded yet, load first song
         load(0);
-        setTimeout(() => wavesurfer.play(), 100);
-        playing = true;
-        btn.innerHTML = '<i class="fas fa-pause"></i>';
+        playing = true; // Set state before loading
         return;
     }
     
     wavesurfer.playPause();
-    playing = !playing;
-    btn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
 
 load(0);
