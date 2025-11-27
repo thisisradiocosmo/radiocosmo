@@ -1,257 +1,307 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<title>Radiocosmo</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Spectral&display=swap');
-</style>
-<link rel="stylesheet" href="homepage.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://unpkg.com/wavesurfer.js@7"></script>
+    <meta charset="utf-8">
+    <title>Radiocosmo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Spectral&display=swap');
+    </style>
+    <link rel="stylesheet" href="homepage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/wavesurfer.js@7"></script>
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-KQQHR6GDD5"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'G-KQQHR6GDD5');
+    gtag('config', 'G-KQQHR6GDD5');
 </script>
+
 <body>
-<canvas id="stars"></canvas>
+    <canvas id="stars"></canvas>
 
-<div class="banner">
-    <a href="https://forms.gle/92pu8sH3cgkqg9su6" target="_blank">Subscribe</a>
-</div>
-
-<div class="waveform-container">
-    <div id="waveform"></div>
-    <div class="track-info">
-        <span id="current-time">0:00</span>
-        <span id="duration">0:00</span>
+    <div class="banner">
+        <a href="https://forms.gle/92pu8sH3cgkqg9su6" target="_blank" onclick="trackSubscribe()">Subscribe</a>
     </div>
-</div>
 
-<div class="main">
-    <div class="player">
-    <button class="play-btn" onclick="play()" id="btn">
-        <i class="fas fa-play"></i>
-    </button>
-    <div class="track-details">
-        <div class="now-playing" id="title">Select a track</div>
-        <div class="artist-info">
-            <span class="artist-name">Radiocosmo</span>
-            <span class="separator"> - </span>
-            <span class="release-date" id="date"></span>
+    <div class="waveform-container">
+        <div id="waveform"></div>
+        <div class="track-info">
+            <span id="current-time">0:00</span>
+            <span id="duration">0:00</span>
         </div>
     </div>
-</div>
-    
-    <div class="playlist" id="list"></div>
-</div>
 
-<script>
-const songs = [
-{ title: "Nothing I Can Do", date: "17-11-25", url: "songs/song03-master.mp3" },
-{ title: "Clavius", date: "03-03-25", url: "songs/clavius.mp3" },
-{ title: "Station V", date: "03-03-25", url: "songs/station-v.mp3" },
-{ title: "Tycho-2", date: "03-03-25", url: "songs/tycho-2.mp3" },
-{ title: "Russian Moon", date: "03-03-25", url: "songs/russianmoon.mp3" },
-{ title: "Monitor 77", date: "03-03-25", url: "songs/monitor-77.mp3" },
-{ title: "Music for the Mind", date: "24-06-24", url: "songs/music-for-the-mind.mp3" },
-{ title: "Cobblestones", date: "13-05-24", url: "songs/cobblestones.mp3" },
-{ title: "Interlude", date: "08-04-24", url: "songs/interlude.mp3" },
-{ title: "Be OK", date: "18-03-24", url: "songs/be-OK.mp3" },
-{ title: "Spring", date: "26-02-24", url: "songs/spring.mp3" },
-{ title: "Snowflakes", date: "15-01-24", url: "songs/snow-flakes.mp3" },
-{ title: "Easy on The Bass", date: "04-12-23", url: "songs/easy-on-the-bass.mp3" },
-{ title: "Little Stevie", date: "06-11-23", url: "songs/little-stevie.mp3" },
-{ title: "The Way You Are", date: "09-10-23", url: "songs/the-way-you-are.mp3" },
-{ title: "Everyday Things", date: "18-09-23", url: "songs/everyday-things.mp3" },
-{ title: "Do Not Disturb", date: "21-08-23", url: "songs/do-not-disturb.mp3" },
-{ title: "Infant Eyes", date: "07-08-23", url: "songs/infant-eyes.mp3" },
-{ title: "Switch", date: "24-07-23", url: "songs/switch.mp3" },
-{ title: "Bridge", date: "15-05-23", url: "songs/bridge.mp3" },
-{ title: "Birds", date: "03-04-23", url: "songs/birds.mp3" },
-{ title: "Tail Press", date: "03-04-23", url: "songs/tail-press.mp3" },
-{ title: "Bright Future Ahead", date: "06-03-23", url: "songs/bright-future-ahead.mp3" },
-{ title: "Happy Sad", date: "23-01-23", url: "songs/happy-sad.mp3" },
-{ title: "Nishinomiya", date: "02-01-23", url: "songs/nishinomiya.mp3" },
-{ title: "Van Life", date: "12-12-22", url: "songs/van-life.mp3" },
-{ title: "Cabinet of Curiousities", date: "21-11-22", url: "songs/chamber-of-curiosity.mp3" },
-{ title: "Rosy Retrospection feat. vhsgus", date: "12-11-22", url: "songs/rosy-retrospection.mp3" },
-{ title: "Sunday Morning", date: "17-10-22", url: "songs/sunday-morning.mp3" },
-{ title: "Jeanne", date: "26-09-22", url: "songs/jeanne.mp3" },
-{ title: "Reality Check", date: "29-08-22", url: "songs/reality-check.mp3" },
-{ title: "Leisure Skating", date: "01-08-22", url: "songs/leisure-skating.mp3" },
-{ title: "Personal Monopoly", date: "04-07-22", url: "songs/personal-monopoly.mp3" },
-{ title: "Shells and Corals", date: "06-06-22", url: "songs/shells-and-corals.mp3" },
-{ title: "At Midnight", date: "16-05-22", url: "songs/at-midnight.mp3" },
-{ title: "Notable People", date: "25-04-22", url: "songs/notable-people.mp3" },
-{ title: "International Art History", date: "11-04-22", url: "songs/international-art-history.mp3" },
-{ title: "Former Pro", date: "23-03-22", url: "songs/former-pro.mp3" },
-{ title: "Genuine Curiosity", date: "16-02-22", url: "songs/genuine-curiosity.mp3" },
-{ title: "Beginner's Mind", date: "12-01-22", url: "songs/beginner's-mind.mp3" },
-{ title: "Awkward Silence", date: "23-12-21", url: "songs/awkward-silence.mp3" },
-{ title: "Together Alone", date: "03-11-21", url: "songs/together-alone.mp3" },
-{ title: "Road Trip", date: "24-09-21", url: "songs/road-trip.mp3" },
-{ title: "Mark 2", date: "27-08-21", url: "songs/mark-2.mp3" },
-{ title: "fomo", date: "16-07-21", url: "songs/fomo.mp3" },
-{ title: "Mark 1", date: "25-06-21", url: "songs/mark-1.mp3" },
-{ title: "FUD", date: "04-06-21", url: "songs/fud.mp3" },
-{ title: "Rewnd", date: "14-05-21", url: "songs/rewnd.mp3" },
-{ title: "Thnkng", date: "23-04-21", url: "songs/thnkng.mp3" },
-{ title: "doppr", date: "02-04-21", url: "songs/doppr.mp3" },
-{ title: "Barbrshop", date: "21-03-21", url: "songs/barbrshop.mp3" },
-{ title: "Shortsqueeze", date: "19-02-21", url: "songs/short-squeeze.mp3" },
-{ title: "Buttr", date: "29-01-21", url: "songs/buttr.mp3" },
-{ title: "Sempai", date: "15-01-21", url: "songs/sempai.mp3" },
-{ title: "Rookiemistake", date: "01-01-21", url: "songs/rookie-mistake.mp3" },
-{ title: "Ahuacatl", date: "18-12-20", url: "songs/ahuacatl.mp3" },
-{ title: "Lazy Sunday", date: "02-12-20", url: "songs/lazy-sunday.mp3" },
-{ title: "UFU", date: "18-11-20", url: "songs/UFU.mp3" },
-{ title: "addseoul", date: "04-11-20", url: "songs/addseoul.mp3" },
-{ title: "Mattari", date: "28-10-20", url: "songs/mattari.mp3" },
-{ title: "Sonder", date: "21-10-20", url: "songs/sonder.mp3" },
-{ title: "Memories", date: "07-10-20", url: "songs/memories.mp3" },
-{ title: "Platform Two", date: "18-09-20", url: "songs/platform-two.mp3" },
-{ title: "Nord XL", date: "18-09-20", url: "songs/nordXL.mp3" },
-{ title: "Blue MK", date: "18-09-20", url: "songs/blueMK.mp3" },
-{ title: "Oceanstrategy", date: "18-09-20", url: "songs/oceanstrategy.mp3" },
-{ title: "Heaven", date: "18-09-20", url: "songs/someclouds.mp3" },
-{ title: "15122016_v2", date: "15-12-16", url: "songs/15122016.mp3" },
-{ title: "beat1304", date: "08-05-16", url: "songs/beat1304.mp3" },
-{ title: "Dilution", date: "13-04-16", url: "songs/Dilution.mp3" },
-{ title: "112 - Dance With Me (Radiocosmo Soul Injection)", date: "09-10-14", url: "songs/112-dance-with-me-radiocosmo-soulinjection.mp3" },
-{ title: "Sunday Loop", date: "16-09-14", url: "songs/sunday-loop.mp3" },
-{ title: "Moodswing", date: "08-08-14", url: "songs/moodswing.mp3" },
-{ title: "Just Friends", date: "09-06-14", url: "songs/just-friends.mp3" }
-];
+    <div class="main">
+        <div class="player">
+            <button class="play-btn" onclick="play()" id="btn">
+                <i class="fas fa-play"></i>
+            </button>
+            <div class="track-details">
+                <div class="now-playing" id="title">Select a track</div>
+                <div class="artist-info">
+                    <span class="artist-name">Radiocosmo</span>
+                    <span class="separator"> - </span>
+                    <span class="release-date" id="date"></span>
+                </div>
+            </div>
+        </div>
 
-let i = 0, playing = false;
-let wavesurfer;
+        <div class="playlist" id="list"></div>
+    </div>
 
-// Initialize WaveSurfer
-wavesurfer = WaveSurfer.create({
-    container: '#waveform',
-    waveColor: '#ffffff',           
-    progressColor: '#8e8e8e',       
-    cursorColor: '#ebd525',
-    barWidth: 2,
-    barRadius: 3,
-    cursorWidth: 1,
-    height: 80,
-    barGap: 2,
-    responsive: true
-});
+    <script>
+        const songs = [
+            { title: "Nothing I Can Do", date: "17-11-25", url: "songs/song03-master.mp3" },
+            { title: "Clavius", date: "03-03-25", url: "songs/clavius.mp3" },
+            { title: "Station V", date: "03-03-25", url: "songs/station-v.mp3" },
+            { title: "Tycho-2", date: "03-03-25", url: "songs/tycho-2.mp3" },
+            { title: "Russian Moon", date: "03-03-25", url: "songs/russianmoon.mp3" },
+            { title: "Monitor 77", date: "03-03-25", url: "songs/monitor-77.mp3" },
+            { title: "Music for the Mind", date: "24-06-24", url: "songs/music-for-the-mind.mp3" },
+            { title: "Cobblestones", date: "13-05-24", url: "songs/cobblestones.mp3" },
+            { title: "Interlude", date: "08-04-24", url: "songs/interlude.mp3" },
+            { title: "Be OK", date: "18-03-24", url: "songs/be-OK.mp3" },
+            { title: "Spring", date: "26-02-24", url: "songs/spring.mp3" },
+            { title: "Snowflakes", date: "15-01-24", url: "songs/snow-flakes.mp3" },
+            { title: "Easy on The Bass", date: "04-12-23", url: "songs/easy-on-the-bass.mp3" },
+            { title: "Little Stevie", date: "06-11-23", url: "songs/little-stevie.mp3" },
+            { title: "The Way You Are", date: "09-10-23", url: "songs/the-way-you-are.mp3" },
+            { title: "Everyday Things", date: "18-09-23", url: "songs/everyday-things.mp3" },
+            { title: "Do Not Disturb", date: "21-08-23", url: "songs/do-not-disturb.mp3" },
+            { title: "Infant Eyes", date: "07-08-23", url: "songs/infant-eyes.mp3" },
+            { title: "Switch", date: "24-07-23", url: "songs/switch.mp3" },
+            { title: "Bridge", date: "15-05-23", url: "songs/bridge.mp3" },
+            { title: "Birds", date: "03-04-23", url: "songs/birds.mp3" },
+            { title: "Tail Press", date: "03-04-23", url: "songs/tail-press.mp3" },
+            { title: "Bright Future Ahead", date: "06-03-23", url: "songs/bright-future-ahead.mp3" },
+            { title: "Happy Sad", date: "23-01-23", url: "songs/happy-sad.mp3" },
+            { title: "Nishinomiya", date: "02-01-23", url: "songs/nishinomiya.mp3" },
+            { title: "Van Life", date: "12-12-22", url: "songs/van-life.mp3" },
+            { title: "Cabinet of Curiousities", date: "21-11-22", url: "songs/chamber-of-curiosity.mp3" },
+            { title: "Rosy Retrospection feat. vhsgus", date: "12-11-22", url: "songs/rosy-retrospection.mp3" },
+            { title: "Sunday Morning", date: "17-10-22", url: "songs/sunday-morning.mp3" },
+            { title: "Jeanne", date: "26-09-22", url: "songs/jeanne.mp3" },
+            { title: "Reality Check", date: "29-08-22", url: "songs/reality-check.mp3" },
+            { title: "Leisure Skating", date: "01-08-22", url: "songs/leisure-skating.mp3" },
+            { title: "Personal Monopoly", date: "04-07-22", url: "songs/personal-monopoly.mp3" },
+            { title: "Shells and Corals", date: "06-06-22", url: "songs/shells-and-corals.mp3" },
+            { title: "At Midnight", date: "16-05-22", url: "songs/at-midnight.mp3" },
+            { title: "Notable People", date: "25-04-22", url: "songs/notable-people.mp3" },
+            { title: "International Art History", date: "11-04-22", url: "songs/international-art-history.mp3" },
+            { title: "Former Pro", date: "23-03-22", url: "songs/former-pro.mp3" },
+            { title: "Genuine Curiosity", date: "16-02-22", url: "songs/genuine-curiosity.mp3" },
+            { title: "Beginner's Mind", date: "12-01-22", url: "songs/beginner's-mind.mp3" },
+            { title: "Awkward Silence", date: "23-12-21", url: "songs/awkward-silence.mp3" },
+            { title: "Together Alone", date: "03-11-21", url: "songs/together-alone.mp3" },
+            { title: "Road Trip", date: "24-09-21", url: "songs/road-trip.mp3" },
+            { title: "Mark 2", date: "27-08-21", url: "songs/mark-2.mp3" },
+            { title: "fomo", date: "16-07-21", url: "songs/fomo.mp3" },
+            { title: "Mark 1", date: "25-06-21", url: "songs/mark-1.mp3" },
+            { title: "FUD", date: "04-06-21", url: "songs/fud.mp3" },
+            { title: "Rewnd", date: "14-05-21", url: "songs/rewnd.mp3" },
+            { title: "Thnkng", date: "23-04-21", url: "songs/thnkng.mp3" },
+            { title: "doppr", date: "02-04-21", url: "songs/doppr.mp3" },
+            { title: "Barbrshop", date: "21-03-21", url: "songs/barbrshop.mp3" },
+            { title: "Shortsqueeze", date: "19-02-21", url: "songs/short-squeeze.mp3" },
+            { title: "Buttr", date: "29-01-21", url: "songs/buttr.mp3" },
+            { title: "Sempai", date: "15-01-21", url: "songs/sempai.mp3" },
+            { title: "Rookiemistake", date: "01-01-21", url: "songs/rookie-mistake.mp3" },
+            { title: "Ahuacatl", date: "18-12-20", url: "songs/ahuacatl.mp3" },
+            { title: "Lazy Sunday", date: "02-12-20", url: "songs/lazy-sunday.mp3" },
+            { title: "UFU", date: "18-11-20", url: "songs/UFU.mp3" },
+            { title: "addseoul", date: "04-11-20", url: "songs/addseoul.mp3" },
+            { title: "Mattari", date: "28-10-20", url: "songs/mattari.mp3" },
+            { title: "Sonder", date: "21-10-20", url: "songs/sonder.mp3" },
+            { title: "Memories", date: "07-10-20", url: "songs/memories.mp3" },
+            { title: "Platform Two", date: "18-09-20", url: "songs/platform-two.mp3" },
+            { title: "Nord XL", date: "18-09-20", url: "songs/nordXL.mp3" },
+            { title: "Blue MK", date: "18-09-20", url: "songs/blueMK.mp3" },
+            { title: "Oceanstrategy", date: "18-09-20", url: "songs/oceanstrategy.mp3" },
+            { title: "Heaven", date: "18-09-20", url: "songs/someclouds.mp3" },
+            { title: "15122016_v2", date: "15-12-16", url: "songs/15122016.mp3" },
+            { title: "beat1304", date: "08-05-16", url: "songs/beat1304.mp3" },
+            { title: "Dilution", date: "13-04-16", url: "songs/Dilution.mp3" },
+            { title: "112 - Dance With Me (Radiocosmo Soul Injection)", date: "09-10-14", url: "songs/112-dance-with-me-radiocosmo-soulinjection.mp3" },
+            { title: "Sunday Loop", date: "16-09-14", url: "songs/sunday-loop.mp3" },
+            { title: "Moodswing", date: "08-08-14", url: "songs/moodswing.mp3" },
+            { title: "Just Friends", date: "09-06-14", url: "songs/just-friends.mp3" }
+        ];
 
-// Update time display
-wavesurfer.on('audioprocess', () => {
-    document.getElementById('current-time').textContent = formatTime(wavesurfer.getCurrentTime());
-});
+        let i = 0, playing = false;
+        let wavesurfer;
+        let preloadedAudio = null;
 
-wavesurfer.on('ready', () => {
-    document.getElementById('duration').textContent = formatTime(wavesurfer.getDuration());
-});
-
-wavesurfer.on('finish', () => {
-    playing = true; 
-    i = (i + 1) % songs.length;
-    load(i);
-});
-
-wavesurfer.on('play', () => {
-    playing = true;
-    btn.innerHTML = '<i class="fas fa-pause"></i>';
-});
-
-wavesurfer.on('pause', () => {
-    playing = false;
-    btn.innerHTML = '<i class="fas fa-play"></i>';
-});
-
-function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-// Playlist
-songs.forEach((s, x) => {
-    const el = document.createElement('div');
-    el.className = 'song';
-    el.innerHTML = `<span class="song-title">${s.title}</span><span class="song-date">${s.date}</span>`;
-    el.onclick = () => load(x);
-    list.appendChild(el);
-});
-
-function load(x) {
-    i = x;
-    const wasPlaying = playing;
-    wavesurfer.load(songs[i].url);
-    title.textContent = songs[i].title;
-    document.getElementById('date').textContent = songs[i].date; // Add this line
-    document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
-    
-    if (playing) {
-        wavesurfer.once('ready', () => {
-            wavesurfer.play();
+        // Initialize WaveSurfer
+        wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: '#ffffff',
+            progressColor: '#8e8e8e',
+            cursorColor: '#ebd525',
+            barWidth: 2,
+            barRadius: 3,
+            cursorWidth: 1,
+            height: 80,
+            barGap: 2,
+            responsive: true
         });
-    }
-}
 
-function play() {
-    if (!wavesurfer.getDuration()) {
-        // If no audio loaded yet, load first song
+        function preloadNext() {
+            const nextIndex = (i + 1) % songs.length;
+            preloadedAudio = new Audio(songs[nextIndex].url);
+            preloadedAudio.preload = 'auto';
+        }
+
+        // Update time display
+        wavesurfer.on('audioprocess', () => {
+            const currentTime = wavesurfer.getCurrentTime();
+            const duration = wavesurfer.getDuration();
+            const remaining = duration - currentTime;
+
+            document.getElementById('current-time').textContent = formatTime(currentTime);
+            document.getElementById('duration').textContent = '-' + formatTime(remaining);
+        });
+
+        wavesurfer.on('ready', () => {
+            document.getElementById('duration').textContent = formatTime(wavesurfer.getDuration());
+            preloadNext();
+        });
+
+        wavesurfer.on('finish', () => {
+            gtag('event', 'complete_song', {
+                'song_title': songs[i].title
+            });
+
+            playing = true;
+            i = (i + 1) % songs.length;
+            load(i);
+        });
+
+        wavesurfer.on('play', () => {
+            playing = true;
+            btn.innerHTML = '<i class="fas fa-pause"></i>';
+        });
+
+        wavesurfer.on('pause', () => {
+            playing = false;
+            btn.innerHTML = '<i class="fas fa-play"></i>';
+
+            // Track which song is being played
+            gtag('event', 'play_song', {
+                'song_title': songs[i].title,
+                'song_date': songs[i].date,
+                'song_position': i
+            });
+        });
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Playlist
+        songs.forEach((s, x) => {
+            const el = document.createElement('div');
+            el.className = 'song';
+            el.innerHTML = `<span class="song-title">${s.title}</span><span class="song-date">${s.date}</span>`;
+            el.onclick = () => load(x);
+            list.appendChild(el);
+        });
+
+        function load(x) {
+            i = x;
+            const wasPlaying = playing;
+            wavesurfer.load(songs[i].url);
+            title.textContent = songs[i].title;
+            document.getElementById('date').textContent = songs[i].date;
+            document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
+
+            // Track song selection from playlist
+            gtag('event', 'select_song', {
+                'song_title': songs[i].title,
+                'song_position': i
+            });
+
+            if (playing) {
+                wavesurfer.once('ready', () => {
+                    wavesurfer.play();
+                });
+            }
+        }
+
+        function play() {
+            if (!wavesurfer.getDuration()) {
+                // If no audio loaded yet, load first song
+                load(0);
+                playing = true; // Set state before loading
+                return;
+            }
+
+            wavesurfer.playPause();
+        }
+
+        function trackSubscribe() {
+            gtag('event', 'click', {
+                'event_category': 'engagement',
+                'event_label': 'subscribe_button'
+            });
+        }
+
         load(0);
-        playing = true; // Set state before loading
-        return;
-    }
-    
-    wavesurfer.playPause();
-}
 
-load(0);
+        // Stars
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        let w, h, stars = [];
 
-// Stars
-const canvas = document.getElementById('stars');
-const ctx = canvas.getContext('2d');
-let w, h, stars = [];
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            stars = Array.from({ length: 60 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 1.2 + 0.2,
+                alpha: Math.random() * 0.3,
+                dAlpha: (Math.random() * 0.01 + 0.003) * (Math.random() < 0.5 ? 1 : -1)
+            }));
+        }
 
-function resize() {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-    stars = Array.from({ length: 60 }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 1.2 + 0.2,
-        alpha: Math.random() * 0.3,
-        dAlpha: (Math.random() * 0.01 + 0.003) * (Math.random() < 0.5 ? 1 : -1)
-    }));
-}
+        function draw() {
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = 'white';
+            for (let s of stars) {
+                s.alpha += s.dAlpha;
+                if (s.alpha <= 0 || s.alpha >= 0.3) s.dAlpha *= -1;
+                ctx.globalAlpha = s.alpha;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(draw);
+        }
 
-function draw() {
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = 'white';
-    for (let s of stars) {
-        s.alpha += s.dAlpha;
-        if (s.alpha <= 0 || s.alpha >= 0.3) s.dAlpha *= -1;
-        ctx.globalAlpha = s.alpha;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(draw);
-}
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
 
-window.addEventListener('resize', resize);
-resize();
-draw();
-</script>
+        // Track session duration
+        let sessionStart = Date.now();
+
+        window.addEventListener('beforeunload', () => {
+            const duration = Math.floor((Date.now() - sessionStart) / 1000);
+            gtag('event', 'session_duration', {
+                'value': duration
+            });
+        });
+
+    </script>
 </body>
 
 </html>
