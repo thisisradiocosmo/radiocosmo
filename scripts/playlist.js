@@ -1,9 +1,9 @@
 const songs = [
     { title: "Nothing I Can Do", date: "17-11-25", url: "songs/song03-master.mp3" },
+    { title: "Russian Moon", date: "03-03-25", url: "songs/russianmoon.mp3" },
+    { title: "Tycho-2", date: "03-03-25", url: "songs/tycho-2.mp3" },
     { title: "Clavius", date: "03-03-25", url: "songs/clavius.mp3" },
     { title: "Station V", date: "03-03-25", url: "songs/station-v.mp3" },
-    { title: "Tycho-2", date: "03-03-25", url: "songs/tycho-2.mp3" },
-    { title: "Russian Moon", date: "03-03-25", url: "songs/russianmoon.mp3" },
     { title: "Monitor 77", date: "03-03-25", url: "songs/monitor-77.mp3" },
     { title: "Music for the Mind", date: "24-06-24", url: "songs/music-for-the-mind.mp3" },
     { title: "Cobblestones", date: "13-05-24", url: "songs/cobblestones.mp3" },
