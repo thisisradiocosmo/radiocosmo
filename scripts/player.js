@@ -2,6 +2,7 @@ let i = 0, playing = false;
 let wavesurfer;
 let preloadedAudio = null;
 let shuffleMode = false;
+let loopMode = false;
 let shuffleOrder = [];
 let currentShuffleIndex = 0;
 
@@ -14,10 +15,15 @@ wavesurfer = WaveSurfer.create({
     barWidth: 2,
     barRadius: 3,
     cursorWidth: 1,
-    height: 80,
+    height: 60,
     barGap: 2,
     responsive: true
 });
+
+// Get DOM elements after page loads
+const btn = document.getElementById('btn');
+const title = document.getElementById('title');
+const list = document.getElementById('list');
 
 function generateShuffleOrder() {
     shuffleOrder = [...Array(songs.length).keys()];
@@ -62,7 +68,9 @@ wavesurfer.on('audioprocess', () => {
 });
 
 wavesurfer.on('ready', () => {
-    document.getElementById('duration').textContent = formatTime(wavesurfer.getDuration());
+    const duration = wavesurfer.getDuration();
+    document.getElementById('duration').textContent = formatTime(duration);
+    document.getElementById('track-duration').textContent = formatTime(duration);
     preloadNext();
 });
 
@@ -70,6 +78,12 @@ wavesurfer.on('finish', () => {
     gtag('event', 'complete_song', {
         'song_title': songs[i].title
     });
+
+    // If loop mode is on, replay the same track
+    if (loopMode) {
+        wavesurfer.play();
+        return;
+    }
 
     playing = true;
     
@@ -177,6 +191,13 @@ function play() {
         // If no audio loaded yet, load first song
         load(0);
         playing = true; // Set state before loading
+        wavesurfer.once('ready', () => {
+            wavesurfer.play().catch(err => {
+                console.log('Playback failed:', err);
+                playing = false;
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+            });
+        });
         return;
     }
 
@@ -206,6 +227,67 @@ function toggleShuffle() {
     preloadNext();
 }
 
+function toggleLoop() {
+    loopMode = !loopMode;
+    const loopBtn = document.getElementById('loop-btn');
+    
+    if (loopMode) {
+        loopBtn.classList.add('active');
+        
+        gtag('event', 'loop_enabled', {
+            'event_category': 'player_controls'
+        });
+    } else {
+        loopBtn.classList.remove('active');
+        
+        gtag('event', 'loop_disabled', {
+            'event_category': 'player_controls'
+        });
+    }
+}
+
+function previousTrack() {
+    if (shuffleMode) {
+        currentShuffleIndex = (currentShuffleIndex - 1 + shuffleOrder.length) % shuffleOrder.length;
+        i = shuffleOrder[currentShuffleIndex];
+    } else {
+        i = (i - 1 + songs.length) % songs.length;
+    }
+    
+    load(i);
+    
+    if (playing) {
+        wavesurfer.once('ready', () => {
+            wavesurfer.play();
+        });
+    }
+    
+    gtag('event', 'previous_track', {
+        'event_category': 'player_controls'
+    });
+}
+
+function nextTrack() {
+    if (shuffleMode) {
+        currentShuffleIndex = (currentShuffleIndex + 1) % shuffleOrder.length;
+        i = shuffleOrder[currentShuffleIndex];
+    } else {
+        i = (i + 1) % songs.length;
+    }
+    
+    load(i);
+    
+    if (playing) {
+        wavesurfer.once('ready', () => {
+            wavesurfer.play();
+        });
+    }
+    
+    gtag('event', 'next_track', {
+        'event_category': 'player_controls'
+    });
+}
+
 function trackSubscribe() {
     gtag('event', 'click', {
         'event_category': 'engagement',
@@ -221,6 +303,40 @@ window.addEventListener('beforeunload', () => {
     gtag('event', 'session_duration', {
         'value': duration
     });
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ignore if user is typing in an input field
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+    }
+
+    switch(e.key.toLowerCase()) {
+        case ' ':
+        case 'k':
+            e.preventDefault();
+            play();
+            break;
+        case 'arrowright':
+        case 'l':
+            e.preventDefault();
+            nextTrack();
+            break;
+        case 'arrowleft':
+        case 'j':
+            e.preventDefault();
+            previousTrack();
+            break;
+        case 's':
+            e.preventDefault();
+            toggleShuffle();
+            break;
+        case 'r':
+            e.preventDefault();
+            toggleLoop();
+            break;
+    }
 });
 
 load(0);

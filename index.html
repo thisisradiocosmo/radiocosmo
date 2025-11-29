@@ -40,32 +40,50 @@
     </div>
 
     <div class="waveform-container">
-        <div id="waveform"></div>
-        <div class="track-info">
-            <span id="current-time">0:00</span>
-            <span id="duration">0:00</span>
+        <div class="waveform-wrapper">
+            <div id="waveform"></div>
+            <div class="track-info">
+                <span id="current-time">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
         </div>
     </div>
 
     <div class="main">
-        <div class="player">
-            <button class="play-btn" onclick="play()" id="btn">
-                <i class="fas fa-play"></i>
-            </button>
-            <button class="shuffle-btn" onclick="toggleShuffle()" id="shuffle-btn">
-                <i class="fas fa-shuffle"></i>
-            </button>
+        <div class="playlist" id="list"></div>
+    </div>
+
+    <div class="player-bar">
+        <div class="player-bar-inner">
             <div class="track-details">
                 <div class="now-playing" id="title">Select a track</div>
                 <div class="artist-info">
                     <span class="artist-name">Radiocosmo</span>
-                    <span class="separator"> - </span>
-                    <span class="release-date" id="date"></span>
+                    <span class="separator"> · </span>
+                    <span class="track-duration" id="track-duration">0:00</span>
                 </div>
             </div>
-        </div>
+            
+            <div class="player-controls">
+                <button class="control-btn" onclick="toggleShuffle()" id="shuffle-btn">
+                    <i class="fas fa-shuffle"></i>
+                </button>
+                <button class="control-btn prev-btn" onclick="previousTrack()" id="prev-btn">
+                    <i class="fas fa-backward-step"></i>
+                </button>
+                <button class="play-btn" onclick="play()" id="btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="control-btn next-btn" onclick="nextTrack()" id="next-btn">
+                    <i class="fas fa-forward-step"></i>
+                </button>
+                <button class="control-btn" onclick="toggleLoop()" id="loop-btn">
+                    <i class="fas fa-repeat"></i>
+                </button>
+            </div>
 
-        <div class="playlist" id="list"></div>
+            <span class="release-date" id="date"></span>
+        </div>
     </div>
 
     <script src="scripts/stars.js"></script>

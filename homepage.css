@@ -53,19 +53,9 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    padding-bottom: 100px; /* Space for fixed player bar */
 }
 
-/* Player section with button and title */
-.player {
-    max-width: 1440px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 20px 30px;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    background: transparent;
-}
 
 .play-btn {
     background: #fff;
@@ -82,6 +72,8 @@ body {
     align-items: center;
     justify-content: center;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    position: relative;
+    z-index: 1000;
 }
 
 .play-btn:hover {
@@ -90,30 +82,31 @@ body {
     transform: scale(1.05);
 }
 
-.shuffle-btn {
+.control-btn {
     background: transparent;
     border: none;
     color: #fff;
     width: 45px;
-    height: 50px;
+    height: 55px;
     min-width: 45px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 1.1em;
     transition: all 0.3s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 4px;
+    justify-content: flex-end;
+    gap: 6px;
     position: relative;
+    padding-bottom: 8px;
 }
 
-.shuffle-btn:hover {
+.control-btn:hover {
     opacity: 0.7;
     transform: scale(1.05);
 }
 
-.shuffle-btn::after {
+.control-btn::after {
     content: '';
     width: 6px;
     height: 6px;
@@ -122,31 +115,48 @@ body {
     transition: all 0.3s;
 }
 
-.shuffle-btn.active {
+.control-btn.active {
     color: #DAA520;
 }
 
-.shuffle-btn.active::after {
+.control-btn.active::after {
     background: #DAA520;
 }
+
+.prev-btn, .next-btn {
+    font-size: 1.1em;
+    height: 65px;
+    justify-content: flex-end;
+    padding-bottom: 8px;
+}
+
+.prev-btn::after, .next-btn::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+}
+
 
 .track-details {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 2px;
 }
 
 .now-playing {
-    font-size: 1.3em;
+    font-size: 1em;
     font-weight: 500;
     letter-spacing: 0.5px;
-    line-height: 1.2;
+    line-height: 1.3;
 }
 
 .artist-info {
-    font-size: 0.9em;
+    font-size: 0.8em;
     color: rgba(255, 255, 255, 0.7);
     letter-spacing: 0.5px;
+    line-height: 1.3;
 }
 
 .artist-name {
@@ -166,12 +176,77 @@ body {
     max-width: 1440px;
     width: 100%;
     margin: 0 auto;
-    padding: 0 30px 20px;
+    padding: 20px 30px 30px;
     background: transparent;
+    position: relative;
+    z-index: 10;
+}
+
+.waveform-wrapper {
+    width: 100%;
 }
 
 #waveform {
     width: 100%;
+}
+
+/* Player bar - fixed at bottom */
+.player-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 25px 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+}
+
+.player-bar-inner {
+    max-width: 1440px;
+    width: 100%;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.track-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 0 0 auto;
+    padding-left: 30px;
+}
+
+.release-date {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+    padding-right: 30px;
+}
+
+.player-controls {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    justify-content: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
+.track-duration {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .track-info {
@@ -296,10 +371,41 @@ body {
     .banner {
         padding: 15px 20px;
     }
-    
-    .player {
-        padding: 15px 20px;
+
+    .waveform-container {
+        padding: 15px 20px 25px;
+    }
+
+    .main {
+        padding-bottom: 140px; /* More space for taller mobile player bar */
+    }
+
+    .player-bar {
+        padding: 20px 20px 25px;
+    }
+
+    .player-bar-inner {
+        flex-direction: column;
         gap: 12px;
+        align-items: flex-start;
+    }
+
+    .track-details {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .release-info {
+        display: none;
+    }
+
+    .player-controls {
+        position: static;
+        transform: none;
+        left: auto;
+        gap: 3px;
+        width: 100%;
+        justify-content: center;
     }
     
     .now-playing {
@@ -317,15 +423,16 @@ body {
         font-size: 1.1em;
     }
     
-    .shuffle-btn {
+    .control-btn {
         width: 40px;
-        height: 45px;
+        height: 50px;
         min-width: 40px;
         font-size: 0.9em;
     }
-    
-    .waveform-container {
-        padding: 0 20px 15px;
+
+    .prev-btn, .next-btn {
+        font-size: 0.85em;
+        height: 50px;
     }
     
     .song {
