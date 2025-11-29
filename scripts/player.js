@@ -86,11 +86,23 @@ wavesurfer.on('finish', () => {
 wavesurfer.on('play', () => {
     playing = true;
     btn.innerHTML = '<i class="fas fa-pause"></i>';
+    
+    // Add playing class to active song
+    document.querySelectorAll('.song').forEach((el, idx) => {
+        if (idx === i) {
+            el.classList.add('playing');
+        }
+    });
 });
 
 wavesurfer.on('pause', () => {
     playing = false;
     btn.innerHTML = '<i class="fas fa-play"></i>';
+    
+    // Remove playing class from all songs
+    document.querySelectorAll('.song').forEach((el) => {
+        el.classList.remove('playing');
+    });
 
     // Track which song is being played
     gtag('event', 'play_song', {
@@ -110,7 +122,17 @@ function formatTime(seconds) {
 songs.forEach((s, x) => {
     const el = document.createElement('div');
     el.className = 'song';
-    el.innerHTML = `<span class="song-title">${s.title}</span><span class="song-date">${s.date}</span>`;
+    el.innerHTML = `
+        <div style="display: flex; align-items: center;">
+            <div class="playing-animation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <span class="song-title">${s.title}</span>
+        </div>
+        <span class="song-date">${s.date}</span>
+    `;
     el.onclick = () => load(x);
     list.appendChild(el);
 });
@@ -121,7 +143,16 @@ function load(x) {
     wavesurfer.load(songs[i].url);
     title.textContent = songs[i].title;
     document.getElementById('date').textContent = songs[i].date;
-    document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
+    
+    // Update active and playing classes
+    document.querySelectorAll('.song').forEach((el, idx) => {
+        el.classList.toggle('active', idx === i);
+        if (idx === i && playing) {
+            el.classList.add('playing');
+        } else {
+            el.classList.remove('playing');
+        }
+    });
 
     // Update shuffle index if in shuffle mode
     if (shuffleMode) {
