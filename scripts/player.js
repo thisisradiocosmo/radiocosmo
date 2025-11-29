@@ -1,13 +1,16 @@
 let i = 0, playing = false;
 let wavesurfer;
 let preloadedAudio = null;
+let shuffleMode = false;
+let shuffleOrder = [];
+let currentShuffleIndex = 0;
 
 // Initialize WaveSurfer
 wavesurfer = WaveSurfer.create({
     container: '#waveform',
     waveColor: '#ffffff',
     progressColor: '#8e8e8e',
-    cursorColor: '#ebd525',
+    cursorColor: '#DAA520',
     barWidth: 2,
     barRadius: 3,
     cursorWidth: 1,
@@ -16,8 +19,34 @@ wavesurfer = WaveSurfer.create({
     responsive: true
 });
 
+function generateShuffleOrder() {
+    shuffleOrder = [...Array(songs.length).keys()];
+    
+    // Fisher-Yates shuffle algorithm
+    for (let x = shuffleOrder.length - 1; x > 0; x--) {
+        const y = Math.floor(Math.random() * (x + 1));
+        [shuffleOrder[x], shuffleOrder[y]] = [shuffleOrder[y], shuffleOrder[x]];
+    }
+    
+    // Make sure current song is first in shuffle order
+    const currentIndex = shuffleOrder.indexOf(i);
+    if (currentIndex > 0) {
+        [shuffleOrder[0], shuffleOrder[currentIndex]] = [shuffleOrder[currentIndex], shuffleOrder[0]];
+    }
+    
+    currentShuffleIndex = 0;
+}
+
 function preloadNext() {
-    const nextIndex = (i + 1) % songs.length;
+    let nextIndex;
+    
+    if (shuffleMode) {
+        const nextShuffleIndex = (currentShuffleIndex + 1) % shuffleOrder.length;
+        nextIndex = shuffleOrder[nextShuffleIndex];
+    } else {
+        nextIndex = (i + 1) % songs.length;
+    }
+    
     preloadedAudio = new Audio(songs[nextIndex].url);
     preloadedAudio.preload = 'auto';
 }
@@ -43,7 +72,14 @@ wavesurfer.on('finish', () => {
     });
 
     playing = true;
-    i = (i + 1) % songs.length;
+    
+    if (shuffleMode) {
+        currentShuffleIndex = (currentShuffleIndex + 1) % shuffleOrder.length;
+        i = shuffleOrder[currentShuffleIndex];
+    } else {
+        i = (i + 1) % songs.length;
+    }
+    
     load(i);
 });
 
@@ -87,6 +123,11 @@ function load(x) {
     document.getElementById('date').textContent = songs[i].date;
     document.querySelectorAll('.song').forEach((el, idx) => el.classList.toggle('active', idx === i));
 
+    // Update shuffle index if in shuffle mode
+    if (shuffleMode) {
+        currentShuffleIndex = shuffleOrder.indexOf(i);
+    }
+
     // Track song selection from playlist
     gtag('event', 'select_song', {
         'song_title': songs[i].title,
@@ -109,6 +150,29 @@ function play() {
     }
 
     wavesurfer.playPause();
+}
+
+function toggleShuffle() {
+    shuffleMode = !shuffleMode;
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    
+    if (shuffleMode) {
+        shuffleBtn.classList.add('active');
+        generateShuffleOrder();
+        
+        gtag('event', 'shuffle_enabled', {
+            'event_category': 'player_controls'
+        });
+    } else {
+        shuffleBtn.classList.remove('active');
+        
+        gtag('event', 'shuffle_disabled', {
+            'event_category': 'player_controls'
+        });
+    }
+    
+    // Preload next track based on new mode
+    preloadNext();
 }
 
 function trackSubscribe() {
