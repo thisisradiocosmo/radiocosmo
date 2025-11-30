@@ -2,7 +2,9 @@ let i = 0, playing = false;
 let wavesurfer;
 let preloadedAudio = null;
 let shuffleMode = false;
-let loopMode = false;
+let autoScrollEnabled = true;
+let isUserScrolling = false
+let scrollTimeout;
 let shuffleOrder = [];
 let currentShuffleIndex = 0;
 
@@ -20,6 +22,22 @@ wavesurfer = WaveSurfer.create({
     responsive: true
 });
 
+const playlist = document.getElementById('list');
+playlist.addEventListener('scroll', () => {
+    if (!autoScrollEnabled) return; // Als al uit, niks doen
+    
+    // User is aan het scrollen
+    isUserScrolling = true;
+    
+    // Reset timeout
+    clearTimeout(scrollTimeout);
+    
+    // Na 2 seconden niet scrollen, reset flag
+    scrollTimeout = setTimeout(() => {
+        isUserScrolling = false;
+    }, 2000);
+});
+
 // Get DOM elements after page loads
 const btn = document.getElementById('btn');
 const title = document.getElementById('title');
@@ -27,32 +45,32 @@ const list = document.getElementById('list');
 
 function generateShuffleOrder() {
     shuffleOrder = [...Array(songs.length).keys()];
-    
+
     // Fisher-Yates shuffle algorithm
     for (let x = shuffleOrder.length - 1; x > 0; x--) {
         const y = Math.floor(Math.random() * (x + 1));
         [shuffleOrder[x], shuffleOrder[y]] = [shuffleOrder[y], shuffleOrder[x]];
     }
-    
+
     // Make sure current song is first in shuffle order
     const currentIndex = shuffleOrder.indexOf(i);
     if (currentIndex > 0) {
         [shuffleOrder[0], shuffleOrder[currentIndex]] = [shuffleOrder[currentIndex], shuffleOrder[0]];
     }
-    
+
     currentShuffleIndex = 0;
 }
 
 function preloadNext() {
     let nextIndex;
-    
+
     if (shuffleMode) {
         const nextShuffleIndex = (currentShuffleIndex + 1) % shuffleOrder.length;
         nextIndex = shuffleOrder[nextShuffleIndex];
     } else {
         nextIndex = (i + 1) % songs.length;
     }
-    
+
     preloadedAudio = new Audio(songs[nextIndex].url);
     preloadedAudio.preload = 'auto';
 }
@@ -79,28 +97,22 @@ wavesurfer.on('finish', () => {
         'song_title': songs[i].title
     });
 
-    // If loop mode is on, replay the same track
-    if (loopMode) {
-        wavesurfer.play();
-        return;
-    }
-
     playing = true;
-    
+
     if (shuffleMode) {
         currentShuffleIndex = (currentShuffleIndex + 1) % shuffleOrder.length;
         i = shuffleOrder[currentShuffleIndex];
     } else {
         i = (i + 1) % songs.length;
     }
-    
+
     load(i);
 });
 
 wavesurfer.on('play', () => {
     playing = true;
     btn.innerHTML = '<i class="fas fa-pause"></i>';
-    
+
     // Add playing class to active song
     document.querySelectorAll('.song').forEach((el, idx) => {
         if (idx === i) {
@@ -112,7 +124,7 @@ wavesurfer.on('play', () => {
 wavesurfer.on('pause', () => {
     playing = false;
     btn.innerHTML = '<i class="fas fa-play"></i>';
-    
+
     // Remove playing class from all songs
     document.querySelectorAll('.song').forEach((el) => {
         el.classList.remove('playing');
@@ -157,7 +169,7 @@ function load(x) {
     wavesurfer.load(songs[i].url);
     title.textContent = songs[i].title;
     document.getElementById('date').textContent = songs[i].date;
-    
+
     // Update active and playing classes
     document.querySelectorAll('.song').forEach((el, idx) => {
         el.classList.toggle('active', idx === i);
@@ -167,6 +179,17 @@ function load(x) {
             el.classList.remove('playing');
         }
     });
+
+    // Scroll to active song if autoscroll is enabled
+    if (autoScrollEnabled && !isUserScrolling) {
+        const activeSong = document.querySelectorAll('.song')[i];
+        if (activeSong) {
+            activeSong.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center'
+            });
+        }
+    }
 
     // Update shuffle index if in shuffle mode
     if (shuffleMode) {
@@ -207,40 +230,40 @@ function play() {
 function toggleShuffle() {
     shuffleMode = !shuffleMode;
     const shuffleBtn = document.getElementById('shuffle-btn');
-    
+
     if (shuffleMode) {
         shuffleBtn.classList.add('active');
         generateShuffleOrder();
-        
+
         gtag('event', 'shuffle_enabled', {
             'event_category': 'player_controls'
         });
     } else {
         shuffleBtn.classList.remove('active');
-        
+
         gtag('event', 'shuffle_disabled', {
             'event_category': 'player_controls'
         });
     }
-    
+
     // Preload next track based on new mode
     preloadNext();
 }
 
-function toggleLoop() {
-    loopMode = !loopMode;
-    const loopBtn = document.getElementById('loop-btn');
+function toggleAutoScroll() {
+    autoScrollEnabled = !autoScrollEnabled;
+    const autoScrollBtn = document.getElementById('autoscroll-btn');
     
-    if (loopMode) {
-        loopBtn.classList.add('active');
+    if (autoScrollEnabled) {
+        autoScrollBtn.classList.add('active');
         
-        gtag('event', 'loop_enabled', {
+        gtag('event', 'autoscroll_enabled', {
             'event_category': 'player_controls'
         });
     } else {
-        loopBtn.classList.remove('active');
+        autoScrollBtn.classList.remove('active');
         
-        gtag('event', 'loop_disabled', {
+        gtag('event', 'autoscroll_disabled', {
             'event_category': 'player_controls'
         });
     }
@@ -253,15 +276,20 @@ function previousTrack() {
     } else {
         i = (i - 1 + songs.length) % songs.length;
     }
-    
+
     load(i);
-    
+
     if (playing) {
         wavesurfer.once('ready', () => {
             wavesurfer.play();
         });
     }
-    
+
+    // Visual feedback
+    const prevBtn = document.getElementById('prev-btn');
+    prevBtn.focus();
+    setTimeout(() => prevBtn.blur(), 100);
+
     gtag('event', 'previous_track', {
         'event_category': 'player_controls'
     });
@@ -274,15 +302,20 @@ function nextTrack() {
     } else {
         i = (i + 1) % songs.length;
     }
-    
+
     load(i);
-    
+
     if (playing) {
         wavesurfer.once('ready', () => {
             wavesurfer.play();
         });
     }
-    
+
+    // Visual feedback
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.focus();
+    setTimeout(() => nextBtn.blur(), 100);
+
     gtag('event', 'next_track', {
         'event_category': 'player_controls'
     });
@@ -312,7 +345,7 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    switch(e.key.toLowerCase()) {
+    switch (e.key.toLowerCase()) {
         case ' ':
         case 'k':
             e.preventDefault();
@@ -332,11 +365,14 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
             toggleShuffle();
             break;
-        case 'r':
+        case 'a':
             e.preventDefault();
-            toggleLoop();
+            toggleAutoScroll();
             break;
     }
 });
 
 load(0);
+
+// Set autoscroll active by default
+document.getElementById('autoscroll-btn')?.classList.add('active');

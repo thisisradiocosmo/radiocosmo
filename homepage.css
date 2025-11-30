@@ -74,6 +74,11 @@ body {
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
     position: relative;
     z-index: 1000;
+    outline: none;
+}
+
+.play-btn:focus {
+    outline: none;
 }
 
 .play-btn:hover {
@@ -85,7 +90,7 @@ body {
 .control-btn {
     background: transparent;
     border: none;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.6);
     width: 45px;
     height: 55px;
     min-width: 45px;
@@ -99,6 +104,18 @@ body {
     gap: 6px;
     position: relative;
     padding-bottom: 8px;
+    outline: none;
+}
+
+.control-btn:hover,
+.control-btn:focus {
+    color: #fff;
+    outline: none;
+    transform: scale(1.15);
+}
+
+.control-btn:focus {
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
 }
 
 .control-btn:hover {
@@ -116,6 +133,11 @@ body {
 }
 
 .control-btn.active {
+    color: #DAA520;
+}
+
+.control-btn.active:hover,
+.control-btn.active:focus {
     color: #DAA520;
 }
 
@@ -224,7 +246,7 @@ body {
     flex-direction: column;
     gap: 2px;
     flex: 0 0 auto;
-    padding-left: 30px;
+    padding-left: 24px;
 }
 
 .release-date {
@@ -381,21 +403,24 @@ body {
     }
 
     .player-bar {
-        padding: 20px 20px 25px;
+        padding: 10px 20px 25px;
     }
 
     .player-bar-inner {
         flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
+        gap: 16px;
+        align-items: center;
+        padding: 0;
     }
 
     .track-details {
         min-width: auto;
         width: 100%;
+        padding-left: 0;
+        text-align: center;
     }
 
-    .release-info {
+    .release-date {
         display: none;
     }
 
@@ -414,6 +439,7 @@ body {
     
     .artist-info {
         font-size: 0.85em;
+        display: none;
     }
     
     .play-btn {
