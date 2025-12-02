@@ -428,7 +428,7 @@ body {
         position: static;
         transform: none;
         left: auto;
-        gap: 3px;
+        gap: 18px;
         width: 100%;
         justify-content: center;
     }
