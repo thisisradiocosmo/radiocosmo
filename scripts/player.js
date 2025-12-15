@@ -8,6 +8,12 @@ let scrollTimeout;
 let shuffleOrder = [];
 let currentShuffleIndex = 0;
 
+// Separate video mode state
+let videoMode = false;
+let videoIndex = 0; // Separate index for video playlist
+let videoPlayer = null;
+let isMobile = window.innerWidth <= 768;
+
 // Initialize WaveSurfer
 wavesurfer = WaveSurfer.create({
     container: '#waveform',
@@ -20,6 +26,19 @@ wavesurfer = WaveSurfer.create({
     height: 60,
     barGap: 2,
     responsive: true
+});
+
+// Initialize video player
+videoPlayer = document.getElementById('video-player');
+if (videoPlayer) {
+    videoPlayer.muted = false; // Use video's own audio
+    videoPlayer.volume = 1.0;
+}
+
+// Update mobile detection on resize
+window.addEventListener('resize', () => {
+    isMobile = window.innerWidth <= 768;
+    updateVideoButtonVisibility();
 });
 
 const playlist = document.getElementById('list');
@@ -44,6 +63,7 @@ const title = document.getElementById('title');
 const list = document.getElementById('list');
 
 function generateShuffleOrder() {
+    // Generate shuffle order for audio playlist only
     shuffleOrder = [...Array(songs.length).keys()];
 
     // Fisher-Yates shuffle algorithm
@@ -144,6 +164,179 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+// Video player event listeners
+if (videoPlayer) {
+    videoPlayer.addEventListener('timeupdate', () => {
+        if (videoMode && isMobile) {
+            const currentTime = videoPlayer.currentTime;
+            const duration = videoPlayer.duration;
+            const remaining = duration - currentTime;
+            const progress = (currentTime / duration) * 100;
+
+            document.getElementById('simple-current-time').textContent = formatTime(currentTime);
+            document.getElementById('simple-duration').textContent = '-' + formatTime(remaining);
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+    });
+
+    videoPlayer.addEventListener('play', () => {
+        playing = true;
+        btn.innerHTML = '<i class="fas fa-pause"></i>';
+
+        document.querySelectorAll('.song').forEach((el, idx) => {
+            if (idx === i) {
+                el.classList.add('playing');
+            }
+        });
+    });
+
+    videoPlayer.addEventListener('pause', () => {
+        playing = false;
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+
+        document.querySelectorAll('.song').forEach((el) => {
+            el.classList.remove('playing');
+        });
+    });
+
+    videoPlayer.addEventListener('ended', async () => {
+        gtag('event', 'complete_video', {
+            'video_title': videos[videoIndex].title
+        });
+
+        playing = true;
+
+        // Go to next video in video playlist
+        videoIndex = (videoIndex + 1) % videos.length;
+        await loadVideo(videoIndex);
+    });
+
+    videoPlayer.addEventListener('loadedmetadata', () => {
+        const duration = videoPlayer.duration;
+        document.getElementById('simple-duration').textContent = formatTime(duration);
+        document.getElementById('track-duration').textContent = formatTime(duration);
+    });
+
+    // Add click/tap functionality to simple progress bar for seeking
+    const simpleProgressBar = document.querySelector('.simple-progress-bar');
+    if (simpleProgressBar) {
+        const handleSeek = (e) => {
+            if (videoMode && isMobile && videoPlayer.duration) {
+                const rect = simpleProgressBar.getBoundingClientRect();
+                const clickX = e.clientX || (e.touches && e.touches[0].clientX);
+                if (clickX) {
+                    const percentage = (clickX - rect.left) / rect.width;
+                    const clampedPercentage = Math.max(0, Math.min(1, percentage));
+                    const newTime = clampedPercentage * videoPlayer.duration;
+                    videoPlayer.currentTime = newTime;
+                }
+            }
+        };
+
+        simpleProgressBar.addEventListener('click', handleSeek);
+        simpleProgressBar.addEventListener('touchend', handleSeek);
+    }
+}
+
+function updateVideoButtonVisibility() {
+    const videoBtn = document.getElementById('video-btn');
+    if (videoBtn) {
+        // Show video button only on mobile and only if there are videos available
+        if (isMobile && videos.length > 0) {
+            videoBtn.style.display = 'flex';
+        } else {
+            videoBtn.style.display = 'none';
+            // If switching to desktop, disable video mode
+            if (!isMobile && videoMode) {
+                videoMode = false;
+                updatePlayerMode();
+            }
+        }
+    }
+}
+
+async function toggleVideo() {
+    if (!isMobile || videos.length === 0) return;
+
+    videoMode = !videoMode;
+    const videoBtn = document.getElementById('video-btn');
+
+    if (videoMode) {
+        videoBtn.classList.add('active');
+
+        // Start with first video
+        videoIndex = 0;
+        await loadVideo(videoIndex);
+
+        gtag('event', 'video_mode_enabled', {
+            'event_category': 'player_controls',
+            'video_title': videos[videoIndex].title
+        });
+    } else {
+        videoBtn.classList.remove('active');
+
+        // Return to audio mode - don't change song position
+        await updatePlayerMode();
+
+        gtag('event', 'video_mode_disabled', {
+            'event_category': 'player_controls'
+        });
+    }
+}
+
+async function loadVideo(index) {
+    videoIndex = index;
+    const video = videos[videoIndex];
+
+    // Update UI
+    title.textContent = video.title;
+    document.getElementById('date').textContent = video.date;
+
+    // Load video with its own audio
+    videoPlayer.src = video.videoUrl;
+    videoPlayer.muted = false;
+    videoPlayer.volume = 1.0;
+
+    // Show video mode UI
+    await updatePlayerMode();
+
+    // Auto-play
+    if (playing) {
+        videoPlayer.play().catch(err => console.log('Video playback failed:', err));
+    }
+}
+
+async function updatePlayerMode() {
+    const waveformContainer = document.querySelector('.waveform-container');
+    const videoContainer = document.getElementById('video-container');
+    const playlistContainer = document.querySelector('.playlist');
+    const simpleProgress = document.getElementById('simple-progress');
+
+    if (videoMode && isMobile) {
+        // Hide waveform, show video
+        waveformContainer.style.display = 'none';
+        videoContainer.style.display = 'flex';
+        simpleProgress.style.display = 'block';
+        playlistContainer.style.display = 'none';
+
+        // Pause audio mode if playing
+        if (wavesurfer.isPlaying()) {
+            wavesurfer.pause();
+        }
+    } else {
+        // Show waveform, hide video
+        waveformContainer.style.display = 'block';
+        videoContainer.style.display = 'none';
+        simpleProgress.style.display = 'none';
+        playlistContainer.style.display = 'block';
+
+        // Stop video mode if playing
+        if (videoPlayer && !videoPlayer.paused) {
+            videoPlayer.pause();
+        }
+    }
+}
+
 // Playlist
 songs.forEach((s, x) => {
     const el = document.createElement('div');
@@ -163,10 +356,13 @@ songs.forEach((s, x) => {
     list.appendChild(el);
 });
 
-function load(x) {
+async function load(x) {
     i = x;
     const wasPlaying = playing;
+
+    // Only load audio - video mode is separate
     wavesurfer.load(songs[i].url);
+
     title.textContent = songs[i].title;
     document.getElementById('date').textContent = songs[i].date;
 
@@ -184,8 +380,8 @@ function load(x) {
     if (autoScrollEnabled && !isUserScrolling) {
         const activeSong = document.querySelectorAll('.song')[i];
         if (activeSong) {
-            activeSong.scrollIntoView({ 
-                behavior: 'smooth', 
+            activeSong.scrollIntoView({
+                behavior: 'smooth',
                 block: 'center'
             });
         }
@@ -202,17 +398,28 @@ function load(x) {
         'song_position': i
     });
 
-    if (playing) {
+    if (playing && !videoMode) {
         wavesurfer.once('ready', () => {
             wavesurfer.play();
         });
     }
 }
 
-function play() {
+async function play() {
+    // Handle video mode separately
+    if (videoMode && isMobile) {
+        if (videoPlayer.paused) {
+            videoPlayer.play().catch(err => console.log('Video playback failed:', err));
+        } else {
+            videoPlayer.pause();
+        }
+        return;
+    }
+
+    // Handle audio mode
     if (!wavesurfer.getDuration()) {
         // If no audio loaded yet, load first song
-        load(0);
+        await load(0);
         playing = true; // Set state before loading
         wavesurfer.once('ready', () => {
             wavesurfer.play().catch(err => {
@@ -269,20 +476,28 @@ function toggleAutoScroll() {
     }
 }
 
-function previousTrack() {
-    if (shuffleMode) {
+async function previousTrack() {
+    // In video mode, navigate video playlist
+    if (videoMode && isMobile) {
+        videoIndex = (videoIndex - 1 + videos.length) % videos.length;
+        await loadVideo(videoIndex);
+    } else if (shuffleMode) {
         currentShuffleIndex = (currentShuffleIndex - 1 + shuffleOrder.length) % shuffleOrder.length;
         i = shuffleOrder[currentShuffleIndex];
+        await load(i);
+        if (playing) {
+            wavesurfer.once('ready', () => {
+                wavesurfer.play();
+            });
+        }
     } else {
         i = (i - 1 + songs.length) % songs.length;
-    }
-
-    load(i);
-
-    if (playing) {
-        wavesurfer.once('ready', () => {
-            wavesurfer.play();
-        });
+        await load(i);
+        if (playing) {
+            wavesurfer.once('ready', () => {
+                wavesurfer.play();
+            });
+        }
     }
 
     // Visual feedback
@@ -295,20 +510,28 @@ function previousTrack() {
     });
 }
 
-function nextTrack() {
-    if (shuffleMode) {
+async function nextTrack() {
+    // In video mode, navigate video playlist
+    if (videoMode && isMobile) {
+        videoIndex = (videoIndex + 1) % videos.length;
+        await loadVideo(videoIndex);
+    } else if (shuffleMode) {
         currentShuffleIndex = (currentShuffleIndex + 1) % shuffleOrder.length;
         i = shuffleOrder[currentShuffleIndex];
+        await load(i);
+        if (playing) {
+            wavesurfer.once('ready', () => {
+                wavesurfer.play();
+            });
+        }
     } else {
         i = (i + 1) % songs.length;
-    }
-
-    load(i);
-
-    if (playing) {
-        wavesurfer.once('ready', () => {
-            wavesurfer.play();
-        });
+        await load(i);
+        if (playing) {
+            wavesurfer.once('ready', () => {
+                wavesurfer.play();
+            });
+        }
     }
 
     // Visual feedback
@@ -376,3 +599,6 @@ load(0);
 
 // Set autoscroll active by default
 document.getElementById('autoscroll-btn')?.classList.add('active');
+
+// Initialize video button visibility
+updateVideoButtonVisibility();

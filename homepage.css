@@ -26,7 +26,7 @@ body {
 /* Full width banner */
 .banner {
     position: relative;
-    z-index: 1;
+    z-index: 100;
     width: 100%;
     padding: 25px 30px;
     text-align: center;
@@ -39,10 +39,15 @@ body {
     letter-spacing: 2px;
     text-transform: uppercase;
     transition: 0.3s;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 16px;
+    border-radius: 4px;
+    display: inline-block;
 }
 
 .banner a:hover {
     opacity: 0.7;
+    background: rgba(0, 0, 0, 0.7);
 }
 
 /* Main content area */
@@ -210,6 +215,88 @@ body {
 
 #waveform {
     width: 100%;
+}
+
+/* Video container */
+.video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    overflow: hidden;
+}
+
+.video-wrapper {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#video-player {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Simple progress bar for video mode (mobile only) */
+.simple-progress-container {
+    width: 100%;
+    padding: 15px 30px;
+    background: transparent;
+    position: fixed;
+    bottom: calc(100% - 100vh); /* Will be repositioned on mobile */
+    left: 0;
+    right: 0;
+    z-index: 1001; /* Above video, same level as player bar */
+}
+
+.simple-progress-bar {
+    width: 100%;
+    height: 20px; /* Larger clickable area */
+    background: transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.simple-progress-bar::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.simple-progress-fill {
+    height: 3px;
+    background: #DAA520;
+    width: 0%;
+    transition: width 0.1s linear;
+    position: relative;
+    z-index: 1;
+    border-radius: 2px;
+}
+
+.simple-time-info {
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
 }
 
 /* Player bar - fixed at bottom */
@@ -398,6 +485,12 @@ body {
         padding: 15px 20px 25px;
     }
 
+    .simple-progress-container {
+        padding: 15px 20px;
+        bottom: 140px; /* Position exactly at top border of player bar */
+        background: transparent;
+    }
+
     .main {
         padding-bottom: 140px; /* More space for taller mobile player bar */
     }
@@ -432,23 +525,23 @@ body {
         width: 100%;
         justify-content: center;
     }
-    
+
     .now-playing {
         font-size: 1.1em;
     }
-    
+
     .artist-info {
         font-size: 0.85em;
         display: none;
     }
-    
+
     .play-btn {
         width: 50px;
         height: 50px;
         min-width: 50px;
         font-size: 1.1em;
     }
-    
+
     .control-btn {
         width: 40px;
         height: 50px;
@@ -456,23 +549,34 @@ body {
         font-size: 0.9em;
     }
 
+    .control-btn.mobile-only {
+        display: flex;
+    }
+
     .prev-btn, .next-btn {
         font-size: 0.85em;
         height: 50px;
     }
-    
+
     .song {
         padding: 15px 20px;
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
     }
-    
+
     .song.active {
         padding-left: 17px;
     }
-    
+
     .song-date {
         font-size: 0.85em;
+    }
+}
+
+/* Desktop - hide mobile-only elements */
+@media (min-width: 769px) {
+    .mobile-only {
+        display: none !important;
     }
 }

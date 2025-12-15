@@ -1,4 +1,10 @@
+// Separate video list - videos contain their own audio
+const videos = [
+    { title: "Waves", date: "08-12-25", videoUrl: "videos/song01-master (1).MOV" }
+];
+
 const songs = [
+    { title: "Waves", date: "08-12-25", url: "songs/song01-master (1).mp3" },
     { title: "Nothing I Can Do", date: "17-11-25", url: "songs/song03-master.mp3" },
     { title: "Russian Moon", date: "03-03-25", url: "songs/russianmoon.mp3" },
     { title: "Tycho-2", date: "03-03-25", url: "songs/tycho-2.mp3" },

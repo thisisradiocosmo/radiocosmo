@@ -49,6 +49,24 @@
         </div>
     </div>
 
+    <!-- Video container (hidden by default, shown on mobile when video mode is active) -->
+    <div class="video-container" id="video-container" style="display: none;">
+        <div class="video-wrapper">
+            <video id="video-player" playsinline></video>
+        </div>
+    </div>
+
+    <!-- Simple progress line for video mode (mobile only) -->
+    <div class="simple-progress-container" id="simple-progress" style="display: none;">
+        <div class="simple-progress-bar">
+            <div class="simple-progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="simple-time-info">
+            <span id="simple-current-time">0:00</span>
+            <span id="simple-duration">0:00</span>
+        </div>
+    </div>
+
     <div class="main">
         <div class="playlist" id="list"></div>
     </div>
@@ -65,6 +83,9 @@
             </div>
 
             <div class="player-controls">
+                <button class="control-btn mobile-only" onclick="toggleVideo()" id="video-btn" style="display: none;">
+                    <i class="fas fa-video"></i>
+                </button>
                 <button class="control-btn" onclick="toggleShuffle()" id="shuffle-btn">
                     <i class="fas fa-shuffle"></i>
                 </button>
