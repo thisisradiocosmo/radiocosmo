@@ -13,6 +13,14 @@ let videoMode = false;
 let videoIndex = 0; // Separate index for video playlist
 let videoPlayer = null;
 let isMobile = window.innerWidth <= 768;
+let controlsHideTimeout = null;
+let controlsVisible = true;
+
+// Swipe detection
+let touchStartY = 0;
+let touchEndY = 0;
+let touchStartX = 0;
+let touchEndX = 0;
 
 // Initialize WaveSurfer
 wavesurfer = WaveSurfer.create({
@@ -31,8 +39,18 @@ wavesurfer = WaveSurfer.create({
 // Initialize video player
 videoPlayer = document.getElementById('video-player');
 if (videoPlayer) {
-    videoPlayer.muted = false; // Use video's own audio
+    videoPlayer.muted = false;
     videoPlayer.volume = 1.0;
+
+    // Add error handling
+    videoPlayer.addEventListener('error', (e) => {
+        console.error('Video error:', e);
+        console.error('Video error details:', videoPlayer.error);
+    });
+
+    videoPlayer.addEventListener('canplay', () => {
+        console.log('Video can play - volume:', videoPlayer.volume);
+    });
 }
 
 // Update mobile detection on resize
@@ -183,6 +201,12 @@ if (videoPlayer) {
         playing = true;
         btn.innerHTML = '<i class="fas fa-pause"></i>';
 
+        // Update video play button
+        const videoPlayBtn = document.getElementById('video-play-btn');
+        if (videoPlayBtn) {
+            videoPlayBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+
         document.querySelectorAll('.song').forEach((el, idx) => {
             if (idx === i) {
                 el.classList.add('playing');
@@ -193,6 +217,12 @@ if (videoPlayer) {
     videoPlayer.addEventListener('pause', () => {
         playing = false;
         btn.innerHTML = '<i class="fas fa-play"></i>';
+
+        // Update video play button
+        const videoPlayBtn = document.getElementById('video-play-btn');
+        if (videoPlayBtn) {
+            videoPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
 
         document.querySelectorAll('.song').forEach((el) => {
             el.classList.remove('playing');
@@ -217,15 +247,17 @@ if (videoPlayer) {
         document.getElementById('track-duration').textContent = formatTime(duration);
     });
 
-    // Add click/tap functionality to simple progress bar for seeking
+    // Add click/tap/slide functionality to simple progress bar for seeking
     const simpleProgressBar = document.querySelector('.simple-progress-bar');
     if (simpleProgressBar) {
+        let isDragging = false;
+
         const handleSeek = (e) => {
             if (videoMode && isMobile && videoPlayer.duration) {
                 const rect = simpleProgressBar.getBoundingClientRect();
-                const clickX = e.clientX || (e.touches && e.touches[0].clientX);
-                if (clickX) {
-                    const percentage = (clickX - rect.left) / rect.width;
+                const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || (e.changedTouches && e.changedTouches[0]?.clientX);
+                if (clientX) {
+                    const percentage = (clientX - rect.left) / rect.width;
                     const clampedPercentage = Math.max(0, Math.min(1, percentage));
                     const newTime = clampedPercentage * videoPlayer.duration;
                     videoPlayer.currentTime = newTime;
@@ -233,8 +265,38 @@ if (videoPlayer) {
             }
         };
 
+        const startDrag = (e) => {
+            if (videoMode && isMobile) {
+                isDragging = true;
+                handleSeek(e);
+                showControls();
+            }
+        };
+
+        const drag = (e) => {
+            if (isDragging && videoMode && isMobile) {
+                e.preventDefault();
+                handleSeek(e);
+            }
+        };
+
+        const endDrag = () => {
+            isDragging = false;
+        };
+
+        // Click/tap to seek
         simpleProgressBar.addEventListener('click', handleSeek);
-        simpleProgressBar.addEventListener('touchend', handleSeek);
+
+        // Touch sliding
+        simpleProgressBar.addEventListener('touchstart', startDrag, { passive: false });
+        simpleProgressBar.addEventListener('touchmove', drag, { passive: false });
+        simpleProgressBar.addEventListener('touchend', endDrag);
+        simpleProgressBar.addEventListener('touchcancel', endDrag);
+
+        // Mouse sliding (for desktop testing)
+        simpleProgressBar.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', endDrag);
     }
 }
 
@@ -255,6 +317,24 @@ function updateVideoButtonVisibility() {
     }
 }
 
+function exitVideoMode() {
+    if (!videoMode) return;
+
+    videoMode = false;
+    const videoBtn = document.getElementById('video-btn');
+    if (videoBtn) {
+        videoBtn.classList.remove('active');
+    }
+
+    // Return to audio mode
+    updatePlayerMode();
+
+    gtag('event', 'video_mode_disabled', {
+        'event_category': 'player_controls',
+        'method': 'home_button'
+    });
+}
+
 async function toggleVideo() {
     if (!isMobile || videos.length === 0) return;
 
@@ -273,14 +353,7 @@ async function toggleVideo() {
             'video_title': videos[videoIndex].title
         });
     } else {
-        videoBtn.classList.remove('active');
-
-        // Return to audio mode - don't change song position
-        await updatePlayerMode();
-
-        gtag('event', 'video_mode_disabled', {
-            'event_category': 'player_controls'
-        });
+        exitVideoMode();
     }
 }
 
@@ -288,21 +361,76 @@ async function loadVideo(index) {
     videoIndex = index;
     const video = videos[videoIndex];
 
+    console.log('Loading video:', video.videoUrl);
+
     // Update UI
     title.textContent = video.title;
     document.getElementById('date').textContent = video.date;
 
-    // Load video with its own audio
-    videoPlayer.src = video.videoUrl;
+    // Set video to unmuted with full volume
     videoPlayer.muted = false;
     videoPlayer.volume = 1.0;
+
+    console.log('Video settings before load - volume:', videoPlayer.volume);
+
+    // Load video
+    videoPlayer.src = video.videoUrl;
+    videoPlayer.load();
+
+    console.log('Video src set to:', videoPlayer.src);
 
     // Show video mode UI
     await updatePlayerMode();
 
-    // Auto-play
-    if (playing) {
-        videoPlayer.play().catch(err => console.log('Video playback failed:', err));
+    // Attempt to autoplay with sound
+    console.log('Attempting to autoplay video with sound...');
+    try {
+        await videoPlayer.play();
+        console.log('Video autoplaying successfully with sound');
+        playing = true;
+    } catch (err) {
+        console.error('Video autoplay failed:', err);
+        playing = false;
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+    }
+}
+
+// Auto-hide controls in video mode (only progress bar, not bottom bar)
+function showControls() {
+    console.log('showControls called - videoMode:', videoMode, 'isMobile:', isMobile);
+    if (!videoMode || !isMobile) return;
+
+    const simpleProgress = document.getElementById('simple-progress');
+
+    console.log('Showing progress bar');
+    simpleProgress.classList.remove('hidden');
+    controlsVisible = true;
+
+    // Clear existing timeout
+    if (controlsHideTimeout) {
+        clearTimeout(controlsHideTimeout);
+    }
+
+    // Hide progress bar after 3 seconds of inactivity
+    controlsHideTimeout = setTimeout(() => {
+        if (videoMode && isMobile) {
+            console.log('Hiding progress bar');
+            simpleProgress.classList.add('hidden');
+            controlsVisible = false;
+        }
+    }, 3000);
+}
+
+function hideControls() {
+    if (!videoMode || !isMobile) return;
+
+    const simpleProgress = document.getElementById('simple-progress');
+
+    simpleProgress.classList.add('hidden');
+    controlsVisible = false;
+
+    if (controlsHideTimeout) {
+        clearTimeout(controlsHideTimeout);
     }
 }
 
@@ -311,6 +439,11 @@ async function updatePlayerMode() {
     const videoContainer = document.getElementById('video-container');
     const playlistContainer = document.querySelector('.playlist');
     const simpleProgress = document.getElementById('simple-progress');
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const autoscrollBtn = document.getElementById('autoscroll-btn');
+    const playerBar = document.querySelector('.player-bar');
+    const videoBottomBar = document.getElementById('video-bottom-bar');
+    const banner = document.querySelector('.banner');
 
     if (videoMode && isMobile) {
         // Hide waveform, show video
@@ -318,6 +451,18 @@ async function updatePlayerMode() {
         videoContainer.style.display = 'flex';
         simpleProgress.style.display = 'block';
         playlistContainer.style.display = 'none';
+
+        // Hide regular player bar and banner, show video bottom bar
+        playerBar.style.display = 'none';
+        if (banner) banner.style.display = 'none';
+        if (videoBottomBar) videoBottomBar.style.display = 'flex';
+
+        // Hide shuffle and autoscroll buttons (not needed in video mode)
+        if (shuffleBtn) shuffleBtn.style.display = 'none';
+        if (autoscrollBtn) autoscrollBtn.style.display = 'none';
+
+        // Start auto-hide timer for progress bar
+        showControls();
 
         // Pause audio mode if playing
         if (wavesurfer.isPlaying()) {
@@ -329,6 +474,19 @@ async function updatePlayerMode() {
         videoContainer.style.display = 'none';
         simpleProgress.style.display = 'none';
         playlistContainer.style.display = 'block';
+
+        // Show regular player bar and banner, hide video bottom bar
+        playerBar.style.display = 'flex';
+        if (banner) banner.style.display = 'block';
+        if (videoBottomBar) videoBottomBar.style.display = 'none';
+
+        // Show shuffle and autoscroll buttons (needed in audio mode)
+        if (shuffleBtn) shuffleBtn.style.display = 'flex';
+        if (autoscrollBtn) autoscrollBtn.style.display = 'flex';
+
+        // Remove video mode styling from player bar
+        playerBar.classList.remove('video-mode', 'hidden');
+        simpleProgress.classList.remove('hidden');
 
         // Stop video mode if playing
         if (videoPlayer && !videoPlayer.paused) {
@@ -602,3 +760,126 @@ document.getElementById('autoscroll-btn')?.classList.add('active');
 
 // Initialize video button visibility
 updateVideoButtonVisibility();
+
+// Swipe gesture handling for video navigation
+function handleSwipe() {
+    const swipeThreshold = 50; // Minimum distance for a swipe
+    const verticalSwipe = touchStartY - touchEndY;
+    const horizontalSwipe = Math.abs(touchStartX - touchEndX);
+
+    console.log('handleSwipe called - verticalSwipe:', verticalSwipe, 'horizontalSwipe:', horizontalSwipe);
+    console.log('Threshold check:', Math.abs(verticalSwipe), '>', swipeThreshold, '&&', Math.abs(verticalSwipe), '>', horizontalSwipe);
+
+    // Only process if it's a mostly vertical swipe
+    if (Math.abs(verticalSwipe) > swipeThreshold && Math.abs(verticalSwipe) > horizontalSwipe) {
+        if (verticalSwipe > 0) {
+            // Swipe up - next video
+            console.log('✅ Swipe up detected - going to next video');
+            console.log('Current videoIndex:', videoIndex, 'Total videos:', videos.length);
+            nextTrack();
+        } else {
+            // Swipe down - previous video
+            console.log('✅ Swipe down detected - going to previous video');
+            console.log('Current videoIndex:', videoIndex, 'Total videos:', videos.length);
+            previousTrack();
+        }
+    } else {
+        console.log('❌ Swipe not detected - threshold not met or too much horizontal movement');
+    }
+}
+
+// Add event listeners for showing controls in video mode
+const videoContainer = document.getElementById('video-container');
+if (videoContainer) {
+    // Show controls on touch/click anywhere on video container
+    videoContainer.addEventListener('touchstart', (e) => {
+        console.log('Touch start on container');
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    videoContainer.addEventListener('touchmove', (e) => {
+        if (videoMode && isMobile) {
+            // Prevent default scrolling during swipe in video mode
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    videoContainer.addEventListener('touchend', (e) => {
+        console.log('CONTAINER TOUCHEND');
+        touchEndY = e.changedTouches[0].clientY;
+        touchEndX = e.changedTouches[0].clientX;
+
+        const verticalDistance = Math.abs(touchStartY - touchEndY);
+        const horizontalDistance = Math.abs(touchStartX - touchEndX);
+
+        if (videoMode && isMobile) {
+            // Check if it's a tap vs a swipe
+            if (verticalDistance < 30 && horizontalDistance < 30) {
+                // It's a tap - show controls
+                console.log('Tap detected, showing controls');
+                showControls();
+            } else {
+                // It's a swipe
+                handleSwipe();
+            }
+        }
+    }, { passive: false });
+
+    videoContainer.addEventListener('click', (e) => {
+        console.log('CONTAINER CLICK');
+        if (videoMode && isMobile) {
+            console.log('Showing controls');
+            showControls();
+        }
+    });
+}
+
+if (videoPlayer) {
+    // Handle video player taps/clicks
+    videoPlayer.addEventListener('click', () => {
+        console.log('Video click');
+        showControls();
+    });
+
+    videoPlayer.addEventListener('touchend', (e) => {
+        // Only handle single taps, not swipes
+        const verticalDistance = Math.abs(touchStartY - touchEndY);
+        const horizontalDistance = Math.abs(touchStartX - touchEndX);
+
+        // If it's a tap (not a swipe)
+        if (verticalDistance < 30 && horizontalDistance < 30) {
+            console.log('Video tap detected');
+            showControls();
+        }
+    });
+
+    // Show controls when seeking
+    const simpleProgressBar = document.querySelector('.simple-progress-bar');
+    if (simpleProgressBar) {
+        simpleProgressBar.addEventListener('touchstart', showControls);
+        simpleProgressBar.addEventListener('mousedown', showControls);
+        simpleProgressBar.addEventListener('click', showControls);
+    }
+}
+
+// Show controls when any player button is clicked
+document.querySelector('.player-controls')?.addEventListener('click', showControls);
+
+// Also add listener to player bar
+document.querySelector('.player-bar')?.addEventListener('click', showControls);
+
+// Add global touch/click listener as fallback
+document.addEventListener('touchstart', (e) => {
+    if (videoMode && isMobile && !controlsVisible) {
+        console.log('Global touchstart');
+        showControls();
+    }
+});
+
+document.addEventListener('click', (e) => {
+    if (videoMode && isMobile && !controlsVisible) {
+        console.log('Global click');
+        showControls();
+    }
+});

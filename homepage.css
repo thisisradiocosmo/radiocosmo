@@ -229,6 +229,7 @@ body {
     flex-direction: column;
     background: #000;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .video-wrapper {
@@ -242,23 +243,66 @@ body {
 }
 
 #video-player {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Muted indicator */
+.muted-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 100;
+    animation: pulse 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.muted-indicator i {
+    font-size: 32px;
+}
+
+.muted-indicator span {
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
 /* Simple progress bar for video mode (mobile only) */
 .simple-progress-container {
     width: 100%;
-    padding: 15px 30px;
+    padding: 10px 30px;
     background: transparent;
     position: fixed;
-    bottom: calc(100% - 100vh); /* Will be repositioned on mobile */
+    bottom: 85px; /* Position closer to bottom bar */
     left: 0;
     right: 0;
-    z-index: 1001; /* Above video, same level as player bar */
+    z-index: 1001;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.simple-progress-container.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .simple-progress-bar {
@@ -299,6 +343,50 @@ body {
     font-size: 13px;
 }
 
+/* TikTok-style video bottom bar */
+.video-bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 75px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 40px 15px;
+    z-index: 1002;
+}
+
+.video-bar-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.video-bar-btn:hover,
+.video-bar-btn:active {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+.video-play-btn {
+    font-size: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    backdrop-filter: blur(10px);
+}
+
 /* Player bar - fixed at bottom */
 .player-bar {
     position: fixed;
@@ -317,6 +405,18 @@ body {
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 1000;
+    transition: opacity 0.3s ease;
+}
+
+.player-bar.video-mode {
+    background: transparent;
+    backdrop-filter: none;
+    border-top: none;
+}
+
+.player-bar.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .player-bar-inner {

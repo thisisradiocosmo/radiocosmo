@@ -1,6 +1,10 @@
 // Separate video list - videos contain their own audio
 const videos = [
-    { title: "Waves", date: "08-12-25", videoUrl: "videos/song01-master (1).MOV" }
+    { title: "Waves - Video 1", date: "08-12-25", videoUrl: "videos/song01-master.mp4" },
+    { title: "Waves - Video 2", date: "08-12-25", videoUrl: "videos/song01-master.mp4" },
+    { title: "Waves - Video 3", date: "08-12-25", videoUrl: "videos/song01-master.mp4" },
+    { title: "Waves - Video 4", date: "08-12-25", videoUrl: "videos/song01-master.mp4" },
+    { title: "Waves - Video 5", date: "08-12-25", videoUrl: "videos/song01-master.mp4" }
 ];
 
 const songs = [

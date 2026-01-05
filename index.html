@@ -52,7 +52,7 @@
     <!-- Video container (hidden by default, shown on mobile when video mode is active) -->
     <div class="video-container" id="video-container" style="display: none;">
         <div class="video-wrapper">
-            <video id="video-player" playsinline></video>
+            <video id="video-player" playsinline preload="auto"></video>
         </div>
     </div>
 
@@ -65,6 +65,19 @@
             <span id="simple-current-time">0:00</span>
             <span id="simple-duration">0:00</span>
         </div>
+    </div>
+
+    <!-- TikTok-style bottom bar (video mode only) -->
+    <div class="video-bottom-bar" id="video-bottom-bar" style="display: none;">
+        <button class="video-bar-btn" onclick="exitVideoMode()" id="home-btn">
+            <i class="fas fa-home"></i>
+        </button>
+        <button class="video-bar-btn video-play-btn" onclick="play()" id="video-play-btn">
+            <i class="fas fa-play"></i>
+        </button>
+        <a href="https://forms.gle/92pu8sH3cgkqg9su6" target="_blank" class="video-bar-btn" onclick="trackSubscribe()">
+            <i class="fas fa-bell"></i>
+        </a>
     </div>
 
     <div class="main">
