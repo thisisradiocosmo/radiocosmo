@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radio Cosmo</title>
+<meta name="description" content="Radio Cosmo — join the newsletter, listen, and follow.">
+<meta name="theme-color" content="#EED1BD">
+
+<!-- Social preview -->
+<meta property="og:title" content="Radio Cosmo">
+<meta property="og:description" content="Join the newsletter, listen, and follow.">
+<meta property="og:url" content="https://radiocosmo.net">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23EED1BD'/><circle cx='16' cy='16' r='7' fill='%23E42C00'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Font Awesome 6 Free -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+<style>
+  :root{
+    --bg:#EED1BD;
+    --ink:#1D1818;
+    --accent:#E42C00;
+    --rule:rgba(29,24,24,.18);
+    --soft:rgba(29,24,24,.6);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    min-height:100svh;
+    display:flex;
+    justify-content:center;
+    padding:clamp(40px,10vw,80px) 20px 40px;
+  }
+
+  .page{width:100%;max-width:440px}
+
+  [hidden]{display:none!important}
+
+  /* ---------- logo ---------- */
+  h1{text-align:center;margin-bottom:34px}
+
+  .logo-img{
+    display:block;margin:0 auto;
+    width:min(280px,70%);height:auto;
+  }
+
+  /* shown only if logo.png is missing */
+  .logo-text{
+    font-family:"Bricolage Grotesque",system-ui,sans-serif;
+    font-weight:800;
+    font-size:clamp(46px,15vw,76px);
+    line-height:.86;
+    letter-spacing:-.045em;
+    text-transform:uppercase;
+  }
+  .logo-text .cosmo{color:var(--accent)}
+
+  /* ---------- primary call to action ---------- */
+  .cta{
+    display:flex;align-items:center;gap:14px;
+    background:var(--accent);color:var(--bg);
+    border:2px solid var(--ink);
+    padding:20px 18px;
+    text-decoration:none;
+    transition:background .18s ease,color .18s ease;
+  }
+  .cta .label{
+    font-family:"Bricolage Grotesque",system-ui,sans-serif;
+    font-weight:800;font-size:20px;line-height:1.15;letter-spacing:-.01em;flex:1;
+  }
+  .cta .ico{font-size:22px}
+  .cta .go{font-size:15px;transition:transform .18s ease}
+  .cta:hover,.cta:focus-visible{background:var(--ink);color:var(--bg)}
+  .cta:hover .go,.cta:focus-visible .go{transform:translateX(4px)}
+
+  /* ---------- link list ---------- */
+  .links{list-style:none;margin-top:38px;border-top:1px solid var(--rule)}
+  .links li{border-bottom:1px solid var(--rule)}
+
+  .links a{
+    display:flex;align-items:center;gap:16px;
+    padding:17px 12px;
+    text-decoration:none;color:var(--ink);
+    font-size:14px;letter-spacing:.1em;text-transform:uppercase;
+    transition:background .16s ease,color .16s ease,padding .16s ease;
+  }
+  .links .ico{width:22px;font-size:18px;color:var(--accent);text-align:center}
+  .links .name{flex:1}
+  .links .go{font-size:13px;opacity:.45;transition:transform .16s ease,opacity .16s ease}
+
+  .links a:hover,.links a:focus-visible{background:var(--ink);color:var(--bg);padding-left:18px}
+  .links a:hover .go,.links a:focus-visible .go{opacity:1;transform:translateX(4px)}
+
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  footer{
+    margin-top:36px;display:flex;justify-content:space-between;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<!--
+  ─── EDIT THESE LINKS ───────────────────────────────
+  Every href below marked REPLACE needs your real URL.
+  ────────────────────────────────────────────────────
+-->
+
+<main class="page">
+
+  <h1>
+    <!-- Drop your logo in the repo root as logo.png (or change the filename below).
+         Until then, the text wordmark shows instead. -->
+    <img class="logo-img" src="logo.png" alt="Radio Cosmo"
+         onerror="this.remove();document.querySelector('.logo-text').hidden=false">
+    <span class="logo-text" hidden>Radio<br><span class="cosmo">Cosmo</span></span>
+  </h1>
+
+  <a class="cta" href="https://REPLACE.buttondown.email/" target="_blank" rel="noopener">
+    <i class="fa-solid fa-envelope ico"></i>
+    <span class="label">Join the newsletter</span>
+    <i class="fa-solid fa-arrow-right go"></i>
+  </a>
+
+  <ul class="links">
+    <li><a href="https://distrokid.com/hyperfollow/REPLACE" target="_blank" rel="noopener">
+      <i class="fa-solid fa-compact-disc ico"></i><span class="name">Pre-save the new release</span><i class="fa-solid fa-arrow-right go"></i></a></li>
+
+    <li><a href="https://open.spotify.com/artist/REPLACE" target="_blank" rel="noopener">
+      <i class="fa-brands fa-spotify ico"></i><span class="name">Spotify</span><i class="fa-solid fa-arrow-right go"></i></a></li>
+
+    <li><a href="https://music.apple.com/artist/REPLACE" target="_blank" rel="noopener">
+      <i class="fa-brands fa-apple ico"></i><span class="name">Apple Music</span><i class="fa-solid fa-arrow-right go"></i></a></li>
+
+    <li><a href="https://instagram.com/REPLACE" target="_blank" rel="noopener">
+      <i class="fa-brands fa-instagram ico"></i><span class="name">Instagram</span><i class="fa-solid fa-arrow-right go"></i></a></li>
+
+    <li><a href="https://facebook.com/REPLACE" target="_blank" rel="noopener">
+      <i class="fa-brands fa-facebook-f ico"></i><span class="name">Facebook</span><i class="fa-solid fa-arrow-right go"></i></a></li>
+
+    <li><a href="https://tiktok.com/@REPLACE" target="_blank" rel="noopener">
+      <i class="fa-brands fa-tiktok ico"></i><span class="name">TikTok</span><i class="fa-solid fa-arrow-right go"></i></a></li>
+  </ul>
+
+  <footer>
+    <span>radiocosmo.net</span>
+    <span>&copy; 2026</span>
+  </footer>
+
+</main>
+
+</body>
+</html>
